@@ -2,208 +2,390 @@ import { useState, useEffect } from "react";
 
 const API = "";
 
-const CATEGORIES = [
+/* ─── Portal definitions (4 service desks) ──────────────────────────────── */
+const PORTALS = [
   {
-    type: "system_problem",
-    label: "Report a System Problem",
-    description: "Let us know if something isn't working and we'll get it back up quickly.",
+    id: "it",
+    name: "IT Service Desk",
+    description: "Welcome! Please select your team and issue type to initiate a support ticket.",
     icon: (
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
       </svg>
     ),
-    iconBg: "bg-gray-100 text-gray-600",
+    featured: true,
   },
   {
-    type: "access_google",
-    label: "Google Workspace Request",
-    description: "Create, delete, or modify Google Workspace accounts and access.",
+    id: "people",
+    name: "People Helpdesk",
+    description: "Welcome! You can raise a request for the People Helpdesk using the options provided.",
     icon: (
-      <svg className="w-6 h-6" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
     ),
-    iconBg: "bg-white border border-gray-100",
+    featured: false,
   },
   {
-    type: "access_commando",
-    label: "Commando Access Request",
-    description: "Request access to the Commando platform.",
-    icon: <span className="text-xl font-bold text-blue-600">+</span>,
-    iconBg: "bg-blue-50",
-  },
-  {
-    type: "access_nucleus",
-    label: "Nucleus Access Request",
-    description: "Request access to the Nucleus system.",
-    icon: <span className="text-xs font-bold text-gray-700" style={{ fontFamily: "serif" }}>بازار</span>,
-    iconBg: "bg-gray-100",
-  },
-  {
-    type: "access_superset",
-    label: "SuperSet Access Request",
-    description: "Request access to Apache SuperSet analytics.",
+    id: "3p_people",
+    name: "3P People Help Desk",
+    description: "Welcome! You can raise a request for the 3P People Help Desk using the options provided.",
     icon: (
-      <svg className="w-5 h-5 text-orange-500" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
       </svg>
     ),
-    iconBg: "bg-orange-50",
+    featured: false,
   },
   {
-    type: "access_platform",
-    label: "Platform Scopes Add/Remove",
-    description: "Add or remove platform-level permissions and scopes.",
+    id: "contractual",
+    name: "Contractual People HelpDesk",
+    description: "Welcome! You can raise a request for the Contractual People HelpDesk using the options provided.",
     icon: (
-      <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7z"/>
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6M12 9v6"/>
+      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
     ),
-    iconBg: "bg-purple-50",
-  },
-  {
-    type: "access_lending",
-    label: "Lending Portal",
-    description: "Request access to lending portal modules.",
-    icon: (
-      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
-      </svg>
-    ),
-    iconBg: "bg-green-50",
-  },
-  {
-    type: "incident",
-    label: "Report an Incident",
-    description: "Report a system outage or critical issue affecting your work.",
-    icon: (
-      <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-      </svg>
-    ),
-    iconBg: "bg-red-50",
-  },
-  {
-    type: "hardware_request",
-    label: "Hardware Request",
-    description: "Request a laptop, monitor, or other hardware equipment.",
-    icon: (
-      <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-      </svg>
-    ),
-    iconBg: "bg-gray-100",
-  },
-  {
-    type: "access_aws",
-    label: "AWS Access",
-    description: "Request access to AWS accounts, services, or environments.",
-    icon: (
-      <svg className="w-5 h-5 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M6.763 10.036c0 .296.032.535.088.71.064.176.144.368.256.576.04.072.056.144.056.208 0 .096-.056.2-.176.304l-.576.384c-.08.056-.16.08-.232.08-.096 0-.192-.048-.28-.136a2.89 2.89 0 01-.336-.44 7.148 7.148 0 01-.288-.552c-.728.856-1.64 1.288-2.736 1.288-.784 0-1.408-.224-1.864-.672-.456-.448-.688-1.04-.688-1.776 0-.784.28-1.424.848-1.904.568-.48 1.32-.72 2.272-.72.312 0 .64.024.984.072.344.048.704.12 1.072.208V7.36c0-.696-.144-1.184-.424-1.464-.288-.28-.776-.416-1.472-.416-.32 0-.648.04-.984.12a7.232 7.232 0 00-.984.32 2.62 2.62 0 01-.32.12.552.552 0 01-.144.024c-.128 0-.192-.096-.192-.296v-.464c0-.152.016-.272.056-.336a.6.6 0 01.224-.192 5.624 5.624 0 011.208-.432A5.76 5.76 0 014.8 4.68c1.032 0 1.784.232 2.272.704.48.464.72 1.176.72 2.128v2.824l-.03-.3zM3.36 11.304c.304 0 .616-.056.944-.168.328-.112.616-.32.864-.608.144-.176.256-.368.312-.584.056-.216.088-.48.088-.792V8.76a7.832 7.832 0 00-.84-.144 6.896 6.896 0 00-.864-.056c-.616 0-1.064.12-1.368.368-.304.248-.456.592-.456 1.048 0 .424.112.744.336.968.216.224.528.36.984.36zm7.328.864c-.168 0-.28-.032-.352-.096-.072-.056-.136-.184-.192-.36L8.352 5.4c-.056-.184-.08-.304-.08-.368 0-.144.072-.224.216-.224h.872c.176 0 .296.032.36.096.072.056.128.184.184.36l1.272 5.016 1.184-5.016c.048-.184.104-.304.176-.36.072-.064.2-.096.368-.096h.712c.176 0 .296.032.376.096.072.056.136.184.176.36l1.2 5.08 1.304-5.08c.056-.184.12-.304.184-.36.072-.064.184-.096.352-.096h.824c.144 0 .224.072.224.224 0 .048-.008.096-.024.152a1.312 1.312 0 01-.064.224l-1.808 6.312c-.056.184-.12.304-.192.36-.072.064-.192.096-.352.096h-.768c-.176 0-.296-.032-.376-.096-.072-.064-.136-.184-.176-.368L13.2 6.928l-1.176 5.168c-.048.184-.104.304-.176.368-.072.064-.2.096-.376.096h-.768zm9.688.192c-.48 0-.96-.056-1.424-.168-.464-.112-.824-.24-1.064-.384-.152-.088-.256-.184-.296-.272a.648.648 0 01-.064-.288v-.48c0-.2.072-.3.208-.3.056 0 .112.008.168.032.056.024.136.056.232.096.312.136.648.24 1.008.312.368.072.728.112 1.096.112.584 0 1.04-.104 1.36-.312.32-.208.48-.504.48-.888a.8.8 0 00-.224-.576c-.144-.16-.424-.304-.824-.44l-1.184-.368c-.6-.184-1.04-.464-1.312-.832a1.984 1.984 0 01-.408-1.216c0-.352.072-.664.224-.936.152-.272.352-.512.608-.704.256-.2.544-.344.872-.448.328-.104.672-.152 1.032-.152.184 0 .376.008.56.04.192.024.368.056.544.096.168.048.328.096.48.152.152.056.272.112.36.168a.744.744 0 01.24.216.52.52 0 01.072.28v.448c0 .2-.072.304-.208.304a.948.948 0 01-.344-.112 4.12 4.12 0 00-1.736-.36c-.528 0-.944.088-1.232.272-.288.184-.44.464-.44.848 0 .232.08.424.24.584.16.16.456.32.88.456l1.16.368c.592.184 1.016.448 1.272.792.256.344.384.736.384 1.176 0 .36-.072.688-.208.976-.144.288-.344.536-.608.744-.264.2-.576.352-.936.456a4.16 4.16 0 01-1.192.168z"/>
-      </svg>
-    ),
-    iconBg: "bg-orange-50",
-  },
-  {
-    type: "access_platform_role",
-    label: "Create New Platform Role",
-    description: "Request creation of a new role or permission set on any platform.",
-    icon: (
-      <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-      </svg>
-    ),
-    iconBg: "bg-gray-100",
-  },
-  {
-    type: "it_service_request",
-    label: "IT Service Request",
-    description: "Request IT support, configuration, or a software installation.",
-    icon: (
-      <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-      </svg>
-    ),
-    iconBg: "bg-indigo-50",
-  },
-  {
-    type: "onboarding",
-    label: "Colleague Onboarding",
-    description: "Submit an IT onboarding request for a new joiner.",
-    icon: (
-      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
-      </svg>
-    ),
-    iconBg: "bg-blue-50",
-  },
-  {
-    type: "offboarding",
-    label: "Colleague Offboarding",
-    description: "Submit an IT offboarding request for a departing employee.",
-    icon: (
-      <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"/>
-      </svg>
-    ),
-    iconBg: "bg-red-50",
+    featured: false,
   },
 ];
 
-function Header() {
+/* ─── Request types per portal ───────────────────────────────────────────── */
+const PORTAL_REQUESTS = {
+  it: [
+    {
+      type: "onboarding", label: "Colleague Onboarding",
+      description: "Submit an IT onboarding request for a new joiner.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
+    },
+    {
+      type: "offboarding", label: "Colleague Offboarding",
+      description: "Submit an IT offboarding request for a departing employee.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"/></svg>,
+    },
+    {
+      type: "access_nucleus", label: "Nucleus Access Request",
+      description: "Request access to the Nucleus system.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>,
+    },
+    {
+      type: "access_commando", label: "Commando Access Request",
+      description: "Request access to the Commando platform.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>,
+    },
+    {
+      type: "access_superset", label: "SuperSet Access Request",
+      description: "Request access to Apache SuperSet analytics.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>,
+    },
+    {
+      type: "access_lending", label: "Lending Portal Access",
+      description: "Request access to lending portal modules.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>,
+    },
+    {
+      type: "access_aws", label: "AWS Access",
+      description: "Request access to AWS accounts, services, or environments.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>,
+    },
+    {
+      type: "access_platform_role", label: "Create New Platform Role",
+      description: "Request creation of a new role or permission set on any platform.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>,
+    },
+    {
+      type: "incident", label: "Report an Incident",
+      description: "Report a system outage or critical issue affecting your work.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>,
+    },
+    {
+      type: "hardware_request", label: "Hardware Request",
+      description: "Request a laptop, monitor, or other hardware equipment.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>,
+    },
+    {
+      type: "it_service_request", label: "IT Service Request",
+      description: "Request IT support, configuration, or a software installation.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>,
+    },
+    {
+      type: "system_problem", label: "Report a System Problem",
+      description: "Let us know if something isn't working and we'll get it back up quickly.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>,
+    },
+  ],
+  people: [
+    {
+      type: "onboarding", label: "Colleague Onboarding",
+      description: "Submit an onboarding request for a new joiner.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
+    },
+    {
+      type: "offboarding", label: "Colleague Offboarding",
+      description: "Submit an offboarding request for a departing employee.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"/></svg>,
+    },
+    {
+      type: "it_service_request", label: "BZ Internal Transfer",
+      description: "Request an internal transfer for a Bazaar employee.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>,
+    },
+    {
+      type: "it_service_request", label: "Requisition Form",
+      description: "For people partner only.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>,
+    },
+  ],
+  "3p_people": [
+    {
+      type: "onboarding", label: "3P Colleague Onboarding",
+      description: "Submit an onboarding request for a 3rd-party new joiner.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
+    },
+    {
+      type: "offboarding", label: "3P Colleague Offboarding",
+      description: "Submit an offboarding request for a departing 3rd-party employee.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"/></svg>,
+    },
+    {
+      type: "it_service_request", label: "3P Requisition Form",
+      description: "For 3P people partner only.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>,
+    },
+  ],
+  contractual: [
+    {
+      type: "onboarding", label: "Contractual Onboarding",
+      description: "Submit an onboarding request for a contractual employee.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
+    },
+    {
+      type: "offboarding", label: "Contractual Offboarding",
+      description: "Submit an offboarding request for a departing contractual employee.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"/></svg>,
+    },
+    {
+      type: "it_service_request", label: "Contractual Requisition",
+      description: "Raise a contractual requisition form.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>,
+    },
+  ],
+};
+
+/* ─── Decorative SVG pattern (Jira-style) ────────────────────────────────── */
+function HeroBanner({ children }) {
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="max-w-3xl mx-auto flex items-center gap-3">
-        <span className="text-xl font-bold text-[#0747a6]" style={{ fontFamily: "serif" }}>بازار</span>
-        <span className="text-gray-300">|</span>
-        <span className="text-gray-700 font-semibold text-sm">IT Service Desk</span>
+    <div className="relative bg-[#1a1f2e] overflow-hidden">
+      {/* Pattern overlay */}
+      <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+            <circle cx="4" cy="4" r="1.5" fill="white" />
+            <path d="M 0 12 Q 6 6 12 12 Q 18 18 24 12" stroke="white" strokeWidth="0.8" fill="none" opacity="0.4"/>
+            <rect x="30" y="30" width="8" height="8" rx="1" stroke="white" strokeWidth="0.8" fill="none" opacity="0.3"/>
+            <circle cx="40" cy="10" r="4" stroke="white" strokeWidth="0.8" fill="none" opacity="0.3"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+      </svg>
+      {/* Right decoration */}
+      <div className="absolute right-0 top-0 h-full w-1/3 opacity-20">
+        <svg viewBox="0 0 400 280" className="w-full h-full" fill="none">
+          <circle cx="320" cy="80" r="120" stroke="white" strokeWidth="1" />
+          <circle cx="320" cy="80" r="80" stroke="white" strokeWidth="0.8" />
+          <circle cx="350" cy="200" r="60" stroke="white" strokeWidth="0.6" />
+          <path d="M 200 0 Q 280 80 320 160 Q 360 240 400 280" stroke="white" strokeWidth="1" />
+        </svg>
       </div>
-    </header>
+      <div className="relative z-10">{children}</div>
+    </div>
   );
 }
 
-function FieldInput({ field, value, onChange }) {
-  if (field.type === "text" || field.type === "email" || field.type === "date") {
+/* ─── Top navigation ─────────────────────────────────────────────────────── */
+function TopNav({ onHome }) {
+  return (
+    <div className="bg-[#1a1f2e] border-b border-white/10 px-6 py-3 flex items-center justify-between">
+      <button onClick={onHome} className="flex items-center gap-2.5">
+        <span className="text-white font-bold text-xl" style={{ fontFamily: "serif" }}>بازار</span>
+      </button>
+      <div className="flex items-center gap-3">
+        <button className="text-white/70 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+        </button>
+        <div className="w-8 h-8 rounded-full bg-[#0052cc] flex items-center justify-center text-white text-[12px] font-bold">SA</div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Help Center landing ────────────────────────────────────────────────── */
+function HelpCenter({ onSelectPortal }) {
+  const [search, setSearch] = useState("");
+  const featured = PORTALS.filter((p) => p.featured);
+  const more = PORTALS.filter((p) => !p.featured);
+
+  return (
+    <div className="min-h-screen bg-white">
+      <TopNav onHome={() => {}} />
+
+      {/* Hero */}
+      <HeroBanner>
+        <div className="px-6 py-14 text-center">
+          <h1 className="text-[32px] font-bold text-white mb-6">Welcome to the Help Center</h1>
+          <div className="relative max-w-xl mx-auto">
+            <svg className="absolute left-4 top-3.5 w-5 h-5 text-[#6b778c] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search for information"
+              className="w-full pl-12 pr-4 py-3.5 text-[15px] bg-white rounded-lg border-2 border-transparent focus:outline-none focus:border-[#4c9aff] text-[#172b4d] placeholder-[#8590a2] shadow-lg"
+            />
+          </div>
+        </div>
+      </HeroBanner>
+
+      {/* Content */}
+      <div className="max-w-4xl mx-auto px-6 py-10">
+
+        {/* Featured portals */}
+        {featured.length > 0 && (
+          <div className="mb-10">
+            <h2 className="text-[13px] font-semibold text-[#172b4d] mb-4 uppercase tracking-wide">Featured portals</h2>
+            <div className="grid grid-cols-1 gap-3">
+              {featured.map((portal) => (
+                <PortalCard key={portal.id} portal={portal} onSelect={onSelectPortal} featured />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* More portals */}
+        {more.length > 0 && (
+          <div>
+            <h2 className="text-[13px] font-semibold text-[#172b4d] mb-4 uppercase tracking-wide">More portals</h2>
+            <div className="grid grid-cols-3 gap-4">
+              {more.map((portal) => (
+                <PortalCard key={portal.id} portal={portal} onSelect={onSelectPortal} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function PortalCard({ portal, onSelect, featured }) {
+  if (featured) {
     return (
-      <input
-        type={field.type}
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        required={field.required}
-        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-    );
-  }
-  if (field.type === "textarea") {
-    return (
-      <textarea
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        required={field.required}
-        rows={3}
-        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-      />
-    );
-  }
-  if (field.type === "select") {
-    return (
-      <select
-        value={value || ""}
-        onChange={(e) => onChange(e.target.value)}
-        required={field.required}
-        className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      <button
+        onClick={() => onSelect(portal)}
+        className="flex items-start gap-5 border border-[#dfe1e6] rounded-lg p-5 hover:border-[#4c9aff] hover:bg-[#f4f7ff] transition-all text-left group shadow-sm"
       >
+        <div className="w-12 h-12 rounded-lg bg-[#e9f2ff] text-[#0052cc] flex items-center justify-center flex-shrink-0 group-hover:bg-[#0052cc] group-hover:text-white transition-colors">
+          {portal.icon}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-[15px] font-bold text-[#172b4d] group-hover:text-[#0052cc] transition-colors">{portal.name}</p>
+          <p className="text-[13px] text-[#6b778c] mt-0.5 leading-relaxed">{portal.description}</p>
+        </div>
+        <svg className="w-5 h-5 text-[#dfe1e6] group-hover:text-[#0052cc] flex-shrink-0 mt-1 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => onSelect(portal)}
+      className="flex flex-col border border-[#dfe1e6] rounded-lg p-5 hover:border-[#4c9aff] hover:shadow-md transition-all text-left group shadow-sm"
+    >
+      <div className="w-10 h-10 rounded-lg bg-[#f1f2f4] text-[#44546f] flex items-center justify-center mb-3 group-hover:bg-[#e9f2ff] group-hover:text-[#0052cc] transition-colors">
+        {portal.icon}
+      </div>
+      <p className="text-[14px] font-bold text-[#172b4d] group-hover:text-[#0052cc] transition-colors">{portal.name}</p>
+      <p className="text-[12px] text-[#6b778c] mt-1 leading-relaxed">{portal.description}</p>
+    </button>
+  );
+}
+
+/* ─── Portal home (request type list) ────────────────────────────────────── */
+function PortalHome({ portal, onSelectRequest, onBack }) {
+  const requests = PORTAL_REQUESTS[portal.id] || [];
+
+  return (
+    <div className="min-h-screen bg-white">
+      <TopNav onHome={onBack} />
+
+      {/* Small hero banner */}
+      <HeroBanner>
+        <div className="px-6 py-8">
+          <div className="max-w-3xl mx-auto">
+            <p className="text-[13px] text-white/60 mb-1">
+              <button onClick={onBack} className="hover:text-white transition-colors">Help Center</button>
+              <span className="mx-2">/</span>
+              <span className="text-white/80">{portal.name}</span>
+            </p>
+          </div>
+        </div>
+      </HeroBanner>
+
+      <div className="max-w-3xl mx-auto px-6 py-8">
+        {/* Portal title */}
+        <div className="mb-8">
+          <h1 className="text-[24px] font-bold text-[#172b4d]">{portal.name}</h1>
+          <p className="text-[14px] text-[#6b778c] mt-1">{portal.description}</p>
+        </div>
+
+        {/* Request types */}
+        <h2 className="text-[14px] font-bold text-[#0052cc] mb-4">What can we help you with?</h2>
+
+        <div className="divide-y divide-[#f1f2f4]">
+          {requests.map((req, i) => (
+            <button
+              key={`${req.type}-${i}`}
+              onClick={() => onSelectRequest(req)}
+              className="w-full flex items-center gap-4 py-4 hover:bg-[#f7f8f9] transition-colors text-left group rounded-lg px-3 -mx-3"
+            >
+              <div className="w-9 h-9 rounded-full bg-[#f1f2f4] text-[#44546f] flex items-center justify-center flex-shrink-0 group-hover:bg-[#e9f2ff] group-hover:text-[#0052cc] transition-colors">
+                {req.icon}
+              </div>
+              <div className="flex-1">
+                <p className="text-[14px] font-semibold text-[#172b4d] group-hover:text-[#0052cc] transition-colors">{req.label}</p>
+                {req.description && <p className="text-[12px] text-[#6b778c] mt-0.5">{req.description}</p>}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Form fields ────────────────────────────────────────────────────────── */
+function FieldInput({ field, value, onChange }) {
+  const base = "w-full border border-[#dfe1e6] rounded-md px-3 py-2.5 text-[14px] text-[#172b4d] bg-white focus:outline-none focus:ring-2 focus:ring-[#4c9aff] focus:border-[#4c9aff] transition-colors placeholder-[#8590a2]";
+
+  if (field.type === "text" || field.type === "email" || field.type === "date")
+    return <input type={field.type} value={value || ""} onChange={(e) => onChange(e.target.value)} required={field.required} className={base} />;
+
+  if (field.type === "textarea")
+    return <textarea value={value || ""} onChange={(e) => onChange(e.target.value)} required={field.required} rows={3} className={`${base} resize-none`} />;
+
+  if (field.type === "select")
+    return (
+      <select value={value || ""} onChange={(e) => onChange(e.target.value)} required={field.required} className={base}>
         <option value="">Select...</option>
         {field.options?.map((opt) => <option key={opt} value={opt}>{opt}</option>)}
       </select>
     );
-  }
+
   if (field.type === "multiselect") {
     const selected = value ? value.split(",").filter(Boolean) : [];
     const toggle = (opt) => {
@@ -213,16 +395,8 @@ function FieldInput({ field, value, onChange }) {
     return (
       <div className="flex flex-wrap gap-2">
         {field.options?.map((opt) => (
-          <button
-            key={opt}
-            type="button"
-            onClick={() => toggle(opt)}
-            className={`px-3 py-1 rounded-full border text-sm transition-colors ${
-              selected.includes(opt)
-                ? "bg-blue-600 border-blue-600 text-white"
-                : "bg-white border-gray-300 text-gray-700 hover:border-blue-400"
-            }`}
-          >
+          <button key={opt} type="button" onClick={() => toggle(opt)}
+            className={`px-3 py-1.5 rounded-full border text-[13px] font-medium transition-colors ${selected.includes(opt) ? "bg-[#0052cc] border-[#0052cc] text-white" : "bg-white border-[#dfe1e6] text-[#44546f] hover:border-[#4c9aff] hover:text-[#0052cc]"}`}>
             {opt}
           </button>
         ))}
@@ -232,177 +406,115 @@ function FieldInput({ field, value, onChange }) {
   return null;
 }
 
-// ─── Home screen ────────────────────────────────────────────────────────────
-function Home({ onSelect }) {
-  return (
-    <div className="min-h-screen bg-white">
-      <Header />
-      <div className="bg-[#f4f5f7] border-b border-gray-200 px-6 py-8">
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-2xl font-bold text-gray-900">Help Center / IT Service Desk</h1>
-          <p className="text-gray-500 mt-1">Welcome! Please select your request type to raise a support ticket.</p>
-        </div>
-      </div>
-
-      <div className="max-w-3xl mx-auto px-6 py-8">
-        <h2 className="text-sm font-semibold text-[#0052cc] mb-4">What can we help you with?</h2>
-        <div className="divide-y divide-gray-100 border border-gray-200 rounded-lg overflow-hidden bg-white shadow-sm">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.type}
-              onClick={() => onSelect(cat)}
-              className="w-full flex items-center gap-4 px-6 py-4 hover:bg-blue-50 transition-colors text-left group"
-            >
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${cat.iconBg}`}>
-                {cat.icon}
-              </div>
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-[#172b4d] group-hover:text-[#0052cc]">{cat.label}</p>
-                <p className="text-xs text-gray-400 mt-0.5">{cat.description}</p>
-              </div>
-              <svg className="w-4 h-4 text-gray-300 group-hover:text-[#0052cc] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
-              </svg>
-            </button>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Form screen ─────────────────────────────────────────────────────────────
-function RequestForm({ category, onBack, onSuccess }) {
+/* ─── Request form ───────────────────────────────────────────────────────── */
+function RequestForm({ portal, request, onBack, onSuccess }) {
   const [fields, setFields] = useState([]);
   const [values, setValues] = useState({});
-  const [name, setName] = useState("Syed Areeb");
-  const [email, setEmail] = useState("syed.areeb@bazaartech.com");
+  const [name, setName]     = useState("");
+  const [email, setEmail]   = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError]   = useState("");
 
   useEffect(() => {
-    fetch(`${API}/api/public/form-fields/${category.type}`)
-      .then((r) => r.json())
-      .then(setFields)
-      .catch(() => setFields([]));
-  }, [category.type]);
+    fetch(`${API}/api/public/form-fields/${request.type}`)
+      .then((r) => r.json()).then(setFields).catch(() => setFields([]));
+  }, [request.type]);
 
   const setVal = (key) => (val) => setValues((v) => ({ ...v, [key]: val }));
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setSubmitting(true);
+    e.preventDefault(); setError(""); setSubmitting(true);
     try {
-      const field_values = Object.entries(values)
-        .filter(([, v]) => v)
-        .map(([field_key, field_value]) => ({ field_key, field_value }));
-
+      const field_values = Object.entries(values).filter(([, v]) => v).map(([field_key, field_value]) => ({ field_key, field_value }));
       const res = await fetch(`${API}/api/public/tickets`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          submitter_name: name,
-          submitter_email: email,
-          ticket_type: category.type,
-          field_values,
-        }),
+        body: JSON.stringify({ submitter_name: name, submitter_email: email, ticket_type: request.type, field_values }),
       });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || "Submission failed");
-      }
-
-      const data = await res.json();
-      onSuccess(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSubmitting(false);
-    }
+      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.detail || "Submission failed"); }
+      onSuccess(await res.json());
+    } catch (err) { setError(err.message); }
+    finally { setSubmitting(false); }
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
-      <div className="bg-[#f4f5f7] border-b border-gray-200 px-6 py-3">
-        <div className="max-w-2xl mx-auto">
-          <nav className="text-sm text-gray-500">
-            <button onClick={onBack} className="hover:text-[#0052cc]">Help Center</button>
-            <span className="mx-2">/</span>
-            <span className="text-gray-700 font-medium">{category.label}</span>
-          </nav>
+    <div className="min-h-screen bg-[#f7f8f9]">
+      <TopNav onHome={() => onBack("home")} />
+
+      {/* Small banner breadcrumb */}
+      <HeroBanner>
+        <div className="px-6 py-6">
+          <div className="max-w-2xl mx-auto">
+            <p className="text-[13px] text-white/60">
+              <button onClick={() => onBack("home")} className="hover:text-white transition-colors">Help Center</button>
+              <span className="mx-2">/</span>
+              <button onClick={() => onBack("portal")} className="hover:text-white transition-colors">{portal.name}</button>
+              <span className="mx-2">/</span>
+              <span className="text-white/90">{request.label}</span>
+            </p>
+          </div>
         </div>
-      </div>
+      </HeroBanner>
 
       <div className="max-w-2xl mx-auto px-6 py-8">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">{category.label}</h1>
+        <h1 className="text-[22px] font-bold text-[#172b4d] mb-6">{request.label}</h1>
 
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-sm rounded-md px-4 py-3">{error}</div>
+          <div className="mb-5 flex items-start gap-3 bg-[#ffebe6] border border-[#ff8f73] text-[#bf2600] text-[13px] rounded-lg px-4 py-3">
+            <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd"/></svg>
+            {error}
+          </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Submitter info */}
-          <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 space-y-4">
-            <p className="text-xs font-semibold text-blue-700 uppercase tracking-wide">Your Details</p>
-            <div className="grid grid-cols-2 gap-4">
+          {/* Your details */}
+          <div className="bg-white border border-[#dfe1e6] rounded-lg overflow-hidden shadow-sm">
+            <div className="px-5 py-3 bg-[#f7f8f9] border-b border-[#dfe1e6]">
+              <p className="text-[12px] font-semibold text-[#6b778c] uppercase tracking-wide">Your Details</p>
+            </div>
+            <div className="p-5 grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Your Name <span className="text-red-500">*</span></label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  placeholder="Ali Khan"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                />
+                <label className="block text-[13px] font-semibold text-[#172b4d] mb-1.5">Full Name <span className="text-[#de350b]">*</span></label>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} required placeholder="Ali Khan"
+                  className="w-full border border-[#dfe1e6] rounded-md px-3 py-2.5 text-[14px] text-[#172b4d] focus:outline-none focus:ring-2 focus:ring-[#4c9aff] focus:border-[#4c9aff] transition-colors placeholder-[#8590a2]" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Your Email <span className="text-red-500">*</span></label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  placeholder="ali@bazaartech.com"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                />
+                <label className="block text-[13px] font-semibold text-[#172b4d] mb-1.5">Email Address <span className="text-[#de350b]">*</span></label>
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="ali@bazaartech.com"
+                  className="w-full border border-[#dfe1e6] rounded-md px-3 py-2.5 text-[14px] text-[#172b4d] focus:outline-none focus:ring-2 focus:ring-[#4c9aff] focus:border-[#4c9aff] transition-colors placeholder-[#8590a2]" />
               </div>
             </div>
           </div>
 
-          {/* Dynamic form fields */}
-          <div className="bg-white border border-gray-200 rounded-lg p-5 space-y-5">
-            {fields.length === 0 ? (
-              <p className="text-gray-400 text-sm">Loading form...</p>
-            ) : (
-              fields.map((field) => (
+          {/* Form fields */}
+          <div className="bg-white border border-[#dfe1e6] rounded-lg overflow-hidden shadow-sm">
+            <div className="px-5 py-3 bg-[#f7f8f9] border-b border-[#dfe1e6]">
+              <p className="text-[12px] font-semibold text-[#6b778c] uppercase tracking-wide">Request Details</p>
+            </div>
+            <div className="p-5 space-y-5">
+              {fields.length === 0 ? (
+                <div className="flex items-center gap-2 text-[#8590a2]">
+                  <div className="w-4 h-4 border-2 border-[#0052cc] border-t-transparent rounded-full animate-spin" />
+                  <span className="text-[13px]">Loading form…</span>
+                </div>
+              ) : fields.map((field) => (
                 <div key={field.key}>
-                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                    {field.label}
-                    {field.required && <span className="text-red-500 ml-0.5">*</span>}
+                  <label className="block text-[13px] font-semibold text-[#172b4d] mb-1.5">
+                    {field.label}{field.required && <span className="text-[#de350b] ml-0.5">*</span>}
                   </label>
                   <FieldInput field={field} value={values[field.key]} onChange={setVal(field.key)} />
                 </div>
-              ))
-            )}
+              ))}
+            </div>
           </div>
 
-          <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="bg-[#0052cc] hover:bg-[#0747a6] text-white font-medium py-2.5 px-6 rounded-md text-sm transition-colors disabled:opacity-50"
-            >
-              {submitting ? "Submitting..." : "Submit Request"}
+          <div className="flex items-center gap-3">
+            <button type="submit" disabled={submitting}
+              className="bg-[#0052cc] hover:bg-[#0747a6] disabled:opacity-50 text-white font-semibold py-2.5 px-6 rounded-md text-[14px] transition-colors shadow-sm">
+              {submitting ? "Submitting…" : "Send"}
             </button>
-            <button
-              type="button"
-              onClick={onBack}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2.5 px-6 rounded-md text-sm transition-colors"
-            >
+            <button type="button" onClick={() => onBack("portal")}
+              className="border border-[#dfe1e6] bg-white hover:bg-[#f7f8f9] text-[#172b4d] font-semibold py-2.5 px-6 rounded-md text-[14px] transition-colors">
               Cancel
             </button>
           </div>
@@ -412,39 +524,39 @@ function RequestForm({ category, onBack, onSuccess }) {
   );
 }
 
-// ─── Success screen ───────────────────────────────────────────────────────────
+/* ─── Success screen ─────────────────────────────────────────────────────── */
 function Success({ ticket, onReset }) {
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
-      <div className="max-w-lg mx-auto px-6 py-20 text-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
-          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7"/>
+    <div className="min-h-screen bg-[#f7f8f9]">
+      <TopNav onHome={onReset} />
+      <HeroBanner><div className="py-4" /></HeroBanner>
+
+      <div className="max-w-lg mx-auto px-6 py-16 text-center">
+        <div className="w-16 h-16 bg-[#e3fcef] rounded-full flex items-center justify-center mx-auto mb-5">
+          <svg className="w-8 h-8 text-[#00875a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7"/>
           </svg>
         </div>
-        <h1 className="text-xl font-bold text-gray-900 mb-2">Request Submitted!</h1>
-        <p className="text-gray-500 mb-6">
-          Your request has been received. The IT team will pick it up shortly.
-        </p>
+        <h1 className="text-[22px] font-bold text-[#172b4d] mb-2">Request Submitted</h1>
+        <p className="text-[14px] text-[#6b778c] mb-8">Your request has been received. The team will pick it up shortly.</p>
 
-        <div className="bg-[#f4f5f7] border border-gray-200 rounded-lg px-6 py-4 mb-8 text-left">
-          <p className="text-xs text-gray-500 mb-1">Reference Number</p>
-          <p className="text-2xl font-bold text-[#0052cc]">{ticket.ticket_number}</p>
-          <p className="text-sm text-gray-600 mt-2">{ticket.title}</p>
-          <div className="mt-3 flex items-center gap-2">
-            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded font-medium">{ticket.status}</span>
+        <div className="bg-white border border-[#dfe1e6] rounded-lg p-6 mb-8 text-left shadow-sm">
+          <p className="text-[11px] font-semibold text-[#6b778c] uppercase tracking-wide mb-2">Reference Number</p>
+          <p className="text-[28px] font-bold text-[#0052cc]">{ticket.ticket_number}</p>
+          <p className="text-[13px] text-[#44546f] mt-2">{ticket.title}</p>
+          <div className="mt-3">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-[#fff0b3] text-[#172b4d]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b]" />
+              {ticket.status}
+            </span>
           </div>
         </div>
 
-        <p className="text-xs text-gray-400 mb-6">
-          Save your reference number <strong>{ticket.ticket_number}</strong> to track your request with IT support.
+        <p className="text-[12px] text-[#8590a2] mb-6">
+          Save your reference number <strong className="text-[#172b4d]">{ticket.ticket_number}</strong> to track your request.
         </p>
 
-        <button
-          onClick={onReset}
-          className="bg-[#0052cc] hover:bg-[#0747a6] text-white font-medium py-2.5 px-6 rounded-md text-sm transition-colors"
-        >
+        <button onClick={onReset} className="bg-[#0052cc] hover:bg-[#0747a6] text-white font-semibold py-2.5 px-6 rounded-md text-[14px] transition-colors shadow-sm">
           Raise Another Request
         </button>
       </div>
@@ -452,30 +564,26 @@ function Success({ ticket, onReset }) {
   );
 }
 
-// ─── App root ─────────────────────────────────────────────────────────────────
+/* ─── App root ───────────────────────────────────────────────────────────── */
 export default function App() {
-  const [screen, setScreen] = useState("home"); // home | form | success
-  const [selectedCategory, setSelectedCategory] = useState(null);
-  const [submittedTicket, setSubmittedTicket] = useState(null);
+  const [screen,   setScreen]   = useState("help_center"); // help_center | portal | form | success
+  const [portal,   setPortal]   = useState(null);
+  const [request,  setRequest]  = useState(null);
+  const [ticket,   setTicket]   = useState(null);
 
-  if (screen === "form" && selectedCategory) {
-    return (
-      <RequestForm
-        category={selectedCategory}
-        onBack={() => setScreen("home")}
-        onSuccess={(ticket) => { setSubmittedTicket(ticket); setScreen("success"); }}
-      />
-    );
-  }
+  const handleBack = (to) => {
+    if (to === "home")   { setScreen("help_center"); setPortal(null); setRequest(null); }
+    if (to === "portal") { setScreen("portal"); setRequest(null); }
+  };
 
-  if (screen === "success" && submittedTicket) {
-    return (
-      <Success
-        ticket={submittedTicket}
-        onReset={() => { setScreen("home"); setSelectedCategory(null); setSubmittedTicket(null); }}
-      />
-    );
-  }
+  if (screen === "success" && ticket)
+    return <Success ticket={ticket} onReset={() => { setScreen("help_center"); setPortal(null); setRequest(null); setTicket(null); }} />;
 
-  return <Home onSelect={(cat) => { setSelectedCategory(cat); setScreen("form"); }} />;
+  if (screen === "form" && portal && request)
+    return <RequestForm portal={portal} request={request} onBack={handleBack} onSuccess={(t) => { setTicket(t); setScreen("success"); }} />;
+
+  if (screen === "portal" && portal)
+    return <PortalHome portal={portal} onSelectRequest={(req) => { setRequest(req); setScreen("form"); }} onBack={() => setScreen("help_center")} />;
+
+  return <HelpCenter onSelectPortal={(p) => { setPortal(p); setScreen("portal"); }} />;
 }
