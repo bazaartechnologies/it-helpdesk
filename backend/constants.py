@@ -295,7 +295,11 @@ WORKFLOW_DEFINITIONS = {
             {"from_state": "WAITING FOR SUPPORT", "to_state": "RESOLVED",            "label": "Auto Resolved"},
             {"from_state": "ACKNOWLEDGE",         "to_state": "IN PROGRESS",         "label": "In Progress"},
             {"from_state": "IN PROGRESS",         "to_state": "HOLD",                "label": "Hold"},
+            {"from_state": "IN PROGRESS",         "to_state": "RESOLVED",            "label": "Resolved"},
+            {"from_state": "IN PROGRESS",         "to_state": "REJECTED",            "label": "Rejected"},
             {"from_state": "HOLD",                "to_state": "IN PROGRESS",         "label": "In Progress"},
+            {"from_state": "HOLD",                "to_state": "RESOLVED",            "label": "Resolved"},
+            {"from_state": "HOLD",                "to_state": "REJECTED",            "label": "Rejected"},
         ],
     },
     "it_service_request": {
