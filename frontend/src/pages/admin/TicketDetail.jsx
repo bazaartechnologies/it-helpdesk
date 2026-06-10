@@ -12,11 +12,16 @@ import useAuthStore from "../../store/authStore";
 
 const TYPE_LABELS = {
   onboarding: "Colleague Onboarding", offboarding: "Colleague Offboarding",
+  incident: "Incident", hardware_request: "Hardware Request",
   access_google: "Google Workspace Request", access_commando: "Commando Access Request",
   access_nucleus: "Nucleus Access Request", access_superset: "SuperSet Access Request",
   access_platform: "Platform Scopes Add/Remove", access_lending: "Lending Portal",
-  system_problem: "Report a System Problem",
+  system_problem: "Report a System Problem", it_service_request: "IT Service Request",
+  access_aws: "AWS Access", access_platform_role: "Create New Platform Role",
 };
+
+const APPROVAL_TYPES = ["access_commando", "access_nucleus", "access_superset", "access_platform", "access_lending", "access_aws", "access_platform_role"];
+const APPROVAL_STATUS = "WAITING FOR APPROVAL";
 
 const FIELD_LABELS = {
   full_name: "Full Name", preferred_email: "Preferred Email ID", personal_email: "Personal Email ID",
@@ -319,6 +324,52 @@ export default function AdminTicketDetail() {
                 )}
               </div>
             </div>
+
+            {/* Approval panel — shown when ticket is waiting for approval */}
+            {ticket.status === APPROVAL_STATUS && (
+              <>
+                <hr className="border-gray-100" />
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Approvals</p>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-3">
+                    <p className="text-xs text-gray-600 font-medium mb-1">This request requires your approval</p>
+                    <p className="text-xs text-gray-400">1 person from 'Approvers' must approve.</p>
+                  </div>
+                  <div className="flex gap-2 mb-3">
+                    <button
+                      onClick={() => handleStatusChange("WAITING FOR SUPPORT")}
+                      disabled={updating}
+                      className="flex-1 bg-[#2d6a4f] hover:bg-[#1b4332] text-white text-xs font-semibold px-3 py-2 rounded transition-colors disabled:opacity-50"
+                    >
+                      ✓ Approve
+                    </button>
+                    <button
+                      onClick={() => handleStatusChange("REJECTED")}
+                      disabled={updating}
+                      className="flex-1 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 text-xs font-semibold px-3 py-2 rounded transition-colors disabled:opacity-50"
+                    >
+                      Decline
+                    </button>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">Approvers</p>
+                    <div className="space-y-2">
+                      {agents.slice(0, 2).map((a) => (
+                        <div key={a.id} className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs font-semibold flex-shrink-0">
+                            {a.full_name[0]}
+                          </div>
+                          <div>
+                            <p className="text-xs font-medium text-gray-700">{a.full_name}</p>
+                            <p className="text-xs text-gray-400">Waiting for approval</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
 
             <hr className="border-gray-100" />
 

@@ -13,6 +13,7 @@ const TYPE_LABELS = {
   access_google: "Google Workspace", access_commando: "Commando Access",
   access_nucleus: "Nucleus Access", access_superset: "SuperSet Access",
   access_platform: "Platform Scopes", access_lending: "Lending Portal",
+  access_aws: "AWS Access", access_platform_role: "Platform Role",
   system_problem: "System Problem", it_service_request: "IT Service Request",
 };
 
@@ -32,7 +33,7 @@ const QUEUE_CONFIG = {
   },
   service_requests: {
     label: "Service Requests",
-    types: ["access_google","access_commando","access_nucleus","access_superset","access_platform","access_lending","system_problem","it_service_request"],
+    types: ["access_google","access_commando","access_nucleus","access_superset","access_platform","access_lending","access_aws","access_platform_role","system_problem","it_service_request"],
     statuses: ["WAITING FOR APPROVAL","WAITING FOR SUPPORT","ACKNOWLEDGE","IN PROGRESS","HOLD","RESOLVED","REJECTED","CANCELED"],
   },
   incidents: {
