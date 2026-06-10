@@ -13,6 +13,7 @@ import Queue from "./pages/admin/Queue";
 import AdminTicketDetail from "./pages/admin/TicketDetail";
 import Workflows from "./pages/admin/Workflows";
 import Users from "./pages/admin/Users";
+import ApproverRules from "./pages/admin/ApproverRules";
 
 function RequireAuth({ children, allowedRoles }) {
   const { user, loading } = useAuthStore();
@@ -63,6 +64,7 @@ function AppRoutes() {
       <Route path="/admin/tickets/:id" element={<RequireAuth allowedRoles={["agent", "manager"]}><AdminTicketDetail /></RequireAuth>} />
       <Route path="/admin/workflows" element={<RequireAuth allowedRoles={["agent", "manager"]}><Workflows /></RequireAuth>} />
       <Route path="/admin/users" element={<RequireAuth allowedRoles={["manager"]}><Users /></RequireAuth>} />
+      <Route path="/admin/approver-rules" element={<RequireAuth allowedRoles={["manager"]}><ApproverRules /></RequireAuth>} />
 
       {/* Root redirect */}
       <Route path="/" element={<RootRedirect />} />

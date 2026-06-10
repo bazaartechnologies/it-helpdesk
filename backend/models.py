@@ -130,6 +130,16 @@ class WorkflowTransition(Base):
     workflow: Mapped["WorkflowDefinition"] = relationship("WorkflowDefinition", back_populates="transitions")
 
 
+class ApproverRule(Base):
+    __tablename__ = "approver_rules"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    ticket_type: Mapped[str] = mapped_column(String, index=True, nullable=False)
+    module_value: Mapped[str] = mapped_column(String, nullable=False)
+    approvers: Mapped[str] = mapped_column(Text, nullable=False)  # comma-separated names
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 class TicketHistory(Base):
     __tablename__ = "ticket_history"
 

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import engine, SessionLocal
 import models
 import auth as auth_utils
-from routers import auth, tickets, workflows, users, dashboard, public
+from routers import auth, tickets, workflows, users, dashboard, public, approver_rules
 from constants import TICKET_TYPES, WORKFLOW_DEFINITIONS, get_workflow_key
 
 app = FastAPI(title="Bazaar IT Help Desk API")
@@ -26,6 +26,7 @@ app.include_router(workflows.router)
 app.include_router(users.router)
 app.include_router(dashboard.router)
 app.include_router(public.router)
+app.include_router(approver_rules.router)
 
 
 @app.get("/health")
