@@ -639,7 +639,7 @@ function RequestForm({ portal, request, onBack, onSuccess, prefillName = "", pre
 }
 
 /* ─── Success screen ─────────────────────────────────────────────────────── */
-function Success({ ticket, onReset }) {
+function Success({ ticket, onReset, onViewTicket }) {
   const isDual = !!ticket.cph_ticket_number; // People portal dual ticket
 
   return (
@@ -671,9 +671,17 @@ function Success({ ticket, onReset }) {
               </div>
               <p className="text-[28px] font-bold text-[#0052cc]">{ticket.cph_ticket_number}</p>
               <p className="text-[13px] text-[#44546f] mt-1">{ticket.title}</p>
-              <div className="mt-2 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b]" />
-                <span className="text-[11px] font-semibold text-[#974f0c]">{ticket.status}</span>
+              <div className="mt-3 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#f59e0b]" />
+                  <span className="text-[11px] font-semibold text-[#974f0c]">{ticket.status}</span>
+                </div>
+                <button
+                  onClick={() => onViewTicket(ticket.cph_ticket_number)}
+                  className="text-[12px] font-semibold text-[#0052cc] hover:underline flex items-center gap-1"
+                >
+                  View Ticket →
+                </button>
               </div>
             </div>
 
@@ -727,15 +735,168 @@ function Success({ ticket, onReset }) {
   );
 }
 
+/* ─── Ticket Tracker ─────────────────────────────────────────────────────── */
+const STATUS_COLORS = {
+  "WAITING FOR SUPPORT": { dot: "bg-[#0052cc]", text: "text-[#0052cc]" },
+  "IN PROGRESS":         { dot: "bg-[#0052cc]", text: "text-[#0052cc]" },
+  "AWAITING APPROVAL":   { dot: "bg-[#f59e0b]", text: "text-[#974f0c]" },
+  "RESOLVED":            { dot: "bg-[#00875a]", text: "text-[#00875a]" },
+  "CLOSED":              { dot: "bg-[#6b778c]", text: "text-[#6b778c]" },
+  "REJECTED":            { dot: "bg-[#de350b]", text: "text-[#de350b]" },
+  "ON HOLD":             { dot: "bg-[#f97316]", text: "text-[#c2410c]" },
+};
+const TYPE_LABELS = {
+  onboarding: "Colleague Onboarding", offboarding: "Colleague Offboarding",
+  bz_internal_transfer: "BZ Internal Transfer", system_problem: "System / Technical Problem",
+  access_nucleus: "Nucleus Access", access_commando: "Commando Access",
+  access_lending: "Lending Portal Access", access_superset: "SuperSet Access",
+  service_request: "General IT Request",
+};
+
+function TicketTracker({ ticketNumber, onBack, onViewLinked }) {
+  const [data,    setData]    = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error,   setError]   = useState("");
+
+  useEffect(() => {
+    setLoading(true); setError("");
+    fetch(`${API}/api/public/tickets/${ticketNumber}`)
+      .then((r) => { if (!r.ok) throw new Error("Ticket not found"); return r.json(); })
+      .then(setData)
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [ticketNumber]);
+
+  const sc = data ? (STATUS_COLORS[data.status] || { dot: "bg-[#6b778c]", text: "text-[#6b778c]" }) : null;
+
+  return (
+    <div className="min-h-screen bg-[#f7f8f9]">
+      <TopNav onHome={onBack} />
+      <HeroBanner>
+        <div className="px-6 py-6 max-w-2xl mx-auto">
+          <p className="text-[13px] text-white/60">
+            <button onClick={onBack} className="hover:text-white transition-colors">Help Center</button>
+            <span className="mx-2">/</span>
+            <span className="text-white/90">Track Request</span>
+          </p>
+        </div>
+      </HeroBanner>
+
+      <div className="max-w-2xl mx-auto px-6 py-8">
+        {loading && (
+          <div className="flex items-center gap-3 text-[#6b778c] py-16 justify-center">
+            <div className="w-5 h-5 border-2 border-[#0052cc] border-t-transparent rounded-full animate-spin" />
+            <span>Loading ticket…</span>
+          </div>
+        )}
+        {error && (
+          <div className="bg-[#ffebe6] border border-[#ff8f73] text-[#bf2600] text-[14px] rounded-lg px-5 py-4">
+            {error}
+          </div>
+        )}
+        {data && (
+          <div className="space-y-4">
+            {/* Header */}
+            <div className="bg-white border border-[#dfe1e6] rounded-lg p-6 shadow-sm">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-[12px] font-bold text-[#0052cc] bg-[#e9f2ff] px-2 py-0.5 rounded">
+                      {data.portal_source === "people" ? "📋 People Helpdesk" : "🖥️ IT Service Desk"}
+                    </span>
+                    <span className="text-[12px] text-[#8590a2]">{TYPE_LABELS[data.ticket_type] || data.ticket_type}</span>
+                  </div>
+                  <h1 className="text-[20px] font-bold text-[#172b4d]">{data.ticket_number}</h1>
+                  <p className="text-[14px] text-[#44546f] mt-1">{data.title}</p>
+                </div>
+                <div className="flex-shrink-0 flex items-center gap-1.5 mt-1">
+                  <span className={`w-2 h-2 rounded-full ${sc.dot}`} />
+                  <span className={`text-[12px] font-semibold ${sc.text}`}>{data.status}</span>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-[#dfe1e6] grid grid-cols-3 gap-4 text-[12px]">
+                <div>
+                  <p className="text-[#8590a2] font-medium mb-0.5">Raised on</p>
+                  <p className="text-[#172b4d] font-semibold">{new Date(data.created_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}</p>
+                </div>
+                <div>
+                  <p className="text-[#8590a2] font-medium mb-0.5">Last updated</p>
+                  <p className="text-[#172b4d] font-semibold">{new Date(data.updated_at).toLocaleDateString("en-GB", {day:"numeric",month:"short",year:"numeric"})}</p>
+                </div>
+                <div>
+                  <p className="text-[#8590a2] font-medium mb-0.5">Assigned to</p>
+                  <p className="text-[#172b4d] font-semibold">{data.assignee || "Unassigned"}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Linked ticket */}
+            {data.linked_ticket && (
+              <div className="bg-[#e9f2ff] border border-[#b3d4ff] rounded-lg px-5 py-4 flex items-center gap-4">
+                <svg className="w-5 h-5 text-[#0052cc] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                </svg>
+                <div className="flex-1">
+                  <p className="text-[12px] text-[#0052cc] font-semibold mb-0.5">
+                    {data.linked_ticket.portal_source === "people" ? "📋 Linked People ticket" : "🖥️ Linked IT task"}
+                  </p>
+                  <p className="text-[13px] text-[#172b4d]">
+                    <strong>{data.linked_ticket.ticket_number}</strong> — {data.linked_ticket.title}
+                  </p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`text-[11px] font-semibold ${(STATUS_COLORS[data.linked_ticket.status] || {text:"text-[#6b778c]"}).text}`}>
+                    {data.linked_ticket.status}
+                  </span>
+                  <button
+                    onClick={() => onViewLinked(data.linked_ticket.ticket_number)}
+                    className="text-[12px] font-semibold text-[#0052cc] hover:underline whitespace-nowrap"
+                  >
+                    View →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Field values */}
+            {Object.keys(data.field_values).length > 0 && (
+              <div className="bg-white border border-[#dfe1e6] rounded-lg overflow-hidden shadow-sm">
+                <div className="px-5 py-3 bg-[#f7f8f9] border-b border-[#dfe1e6]">
+                  <p className="text-[12px] font-semibold text-[#6b778c] uppercase tracking-wide">Request Details</p>
+                </div>
+                <div className="divide-y divide-[#dfe1e6]">
+                  {Object.entries(data.field_values).map(([key, val]) => (
+                    <div key={key} className="px-5 py-3 flex gap-4">
+                      <span className="text-[12px] text-[#6b778c] w-44 flex-shrink-0 capitalize">{key.replace(/_/g," ")}</span>
+                      <span className="text-[13px] text-[#172b4d] font-medium">{val}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <button onClick={onBack}
+              className="text-[13px] text-[#0052cc] hover:underline flex items-center gap-1 mt-2">
+              ← Back to Help Center
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ─── App root ───────────────────────────────────────────────────────────── */
 export default function App() {
-  const [screen,     setScreen]     = useState("help_center"); // help_center | people_login | portal | form | success
-  const [portal,     setPortal]     = useState(null);
-  const [request,    setRequest]    = useState(null);
-  const [ticket,     setTicket]     = useState(null);
-  const [peopleAuth, setPeopleAuth] = useState(null); // { name, email } after People portal auth
+  const [screen,       setScreen]       = useState("help_center"); // help_center | people_login | portal | form | success | track
+  const [portal,       setPortal]       = useState(null);
+  const [request,      setRequest]      = useState(null);
+  const [ticket,       setTicket]       = useState(null);
+  const [peopleAuth,   setPeopleAuth]   = useState(null); // { name, email } after People portal auth
+  const [trackNumber,  setTrackNumber]  = useState(null); // ticket number to view in tracker
 
-  const reset = () => { setScreen("help_center"); setPortal(null); setRequest(null); setTicket(null); setPeopleAuth(null); };
+  const reset = () => { setScreen("help_center"); setPortal(null); setRequest(null); setTicket(null); setPeopleAuth(null); setTrackNumber(null); };
 
   const handleBack = (to) => {
     if (to === "home")         { reset(); }
@@ -743,9 +904,15 @@ export default function App() {
     if (to === "people_login") { setScreen("people_login"); setRequest(null); }
   };
 
+  const openTracker = (num) => { setTrackNumber(num); setScreen("track"); };
+
+  // ── 0. Ticket tracker ──────────────────────────────────────────────────────
+  if (screen === "track" && trackNumber)
+    return <TicketTracker ticketNumber={trackNumber} onBack={reset} onViewLinked={openTracker} />;
+
   // ── 1. Success screen ──────────────────────────────────────────────────────
   if (screen === "success" && ticket)
-    return <Success ticket={ticket} onReset={reset} />;
+    return <Success ticket={ticket} onReset={reset} onViewTicket={openTracker} />;
 
   // ── 2. Request form ────────────────────────────────────────────────────────
   if (screen === "form" && portal && request)

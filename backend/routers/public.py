@@ -126,3 +126,37 @@ def create_public_ticket(body: PublicTicketCreate, db: Session = Depends(get_db)
 
     db.commit()
     return {"ticket_number": ticket.ticket_number, "status": ticket.status, "title": ticket.title}
+
+
+@router.get("/tickets/{ticket_number}")
+def get_public_ticket(ticket_number: str, db: Session = Depends(get_db)):
+    """Public ticket lookup by ticket number (CPH-XXXXX or IT-XXXXX)."""
+    ticket = db.query(models.Ticket).filter(
+        models.Ticket.ticket_number == ticket_number.upper()
+    ).first()
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+
+    fv = {f.field_key: f.field_value for f in ticket.field_values if not f.field_key.startswith("_")}
+    linked = None
+    if ticket.linked_ticket:
+        linked = {
+            "ticket_number": ticket.linked_ticket.ticket_number,
+            "title": ticket.linked_ticket.title,
+            "status": ticket.linked_ticket.status,
+            "portal_source": ticket.linked_ticket.portal_source,
+        }
+
+    return {
+        "ticket_number": ticket.ticket_number,
+        "title": ticket.title,
+        "status": ticket.status,
+        "priority": ticket.priority,
+        "ticket_type": ticket.ticket_type,
+        "portal_source": ticket.portal_source,
+        "created_at": ticket.created_at.isoformat(),
+        "updated_at": ticket.updated_at.isoformat(),
+        "assignee": ticket.assignee.full_name if ticket.assignee else None,
+        "field_values": fv,
+        "linked_ticket": linked,
+    }
