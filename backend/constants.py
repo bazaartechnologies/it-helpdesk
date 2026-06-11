@@ -14,6 +14,12 @@ TICKET_TYPES = {
     "system_problem": "Report a System Problem",
     "it_service_request": "IT Service Request",
     "bz_internal_transfer": "BZ Internal Transfer",
+    # ── 3P People Help Desk ──────────────────────────────────────
+    "3p_hiring":          "Hiring Requisition",
+    "3p_issue":           "Issue Resolution",
+    "3p_disciplinary":    "Disciplinary Action",
+    "3p_reimbursement":   "Reimbursement",
+    "3p_special_project": "Special Project (Only for People Team)",
 }
 
 TICKET_FORM_FIELDS = {
@@ -261,6 +267,63 @@ TICKET_FORM_FIELDS = {
         {"key": "reason_for_hire", "label": "Reason for Hire", "type": "radio",
          "options": ["New Position", "Replacement", "Internal Movement"], "required": True},
     ],
+    # ── 3P People Help Desk forms ────────────────────────────────
+    "3p_hiring": [
+        {"key": "hiring_type",       "label": "Hiring Type",            "type": "select",
+         "options": ["Hiring (Replacement)", "Hiring (New Position)"], "required": True},
+        {"key": "department",        "label": "Department",             "type": "text",     "required": True},
+        {"key": "job_title",         "label": "Job Title",              "type": "text",     "required": True},
+        {"key": "city",              "label": "City",                   "type": "select",
+         "options": ["Karachi", "Lahore", "Islamabad", "Peshawar", "Quetta", "Multan", "Faisalabad", "Other"], "required": True},
+        {"key": "number_of_positions", "label": "Number of Positions",  "type": "text",     "required": True},
+        {"key": "reason",            "label": "Reason / Justification", "type": "textarea", "required": True},
+        {"key": "replacement_for",   "label": "Replacement For (if applicable)", "type": "text", "required": False},
+    ],
+    "3p_issue": [
+        {"key": "issue_type",        "label": "Issue Type",             "type": "select",
+         "options": [
+             "FlowHCM Issue", "Payroll", "Hold Payroll/Incentive", "Release Payroll/Incentive",
+             "FNF Settlement", "Optimization", "Offboarding", "Incentive/Allowance",
+             "IT Assets/SIM Request", "Health & Life Insurance", "Other (In case none of above)",
+         ], "required": True},
+        {"key": "employee_name",     "label": "Employee Name",          "type": "text",     "required": True},
+        {"key": "employee_id",       "label": "Employee ID",            "type": "text",     "required": False},
+        {"key": "department",        "label": "Department",             "type": "text",     "required": True},
+        {"key": "contact_number",    "label": "Contact Number",         "type": "text",     "required": False},
+        {"key": "description",       "label": "Description",            "type": "textarea", "required": True},
+    ],
+    "3p_disciplinary": [
+        {"key": "disciplinary_type", "label": "Disciplinary Issue Type","type": "select",
+         "options": [
+             "Behavioural Issue", "Cash Snatching", "Claims & Shortages Issue",
+             "Fraudulent Activity", "Negligence In Work", "Punctuality Issue",
+             "Uninformed Absenteeism", "Unsatisfactory Performance", "Violation of SOPs",
+             "Inventory Snatching", "Performance Improvement Plan (PIP)",
+             "Eating & Splitting (Pan, Gutka)",
+         ], "required": True},
+        {"key": "employee_name",     "label": "Employee Name",          "type": "text",     "required": True},
+        {"key": "employee_id",       "label": "Employee ID",            "type": "text",     "required": False},
+        {"key": "department",        "label": "Department",             "type": "text",     "required": True},
+        {"key": "incident_date",     "label": "Incident Date",          "type": "date",     "required": True},
+        {"key": "description",       "label": "Description of Incident","type": "textarea", "required": True},
+    ],
+    "3p_reimbursement": [
+        {"key": "reimbursement_type","label": "Reimbursement Type",     "type": "select",
+         "options": ["TADA Claim", "OPD Claim"], "required": True},
+        {"key": "employee_name",     "label": "Employee Name",          "type": "text",     "required": True},
+        {"key": "employee_id",       "label": "Employee ID",            "type": "text",     "required": False},
+        {"key": "department",        "label": "Department",             "type": "text",     "required": True},
+        {"key": "amount",            "label": "Amount (PKR)",           "type": "text",     "required": True},
+        {"key": "claim_date",        "label": "Claim Date",             "type": "date",     "required": True},
+        {"key": "description",       "label": "Description / Details",  "type": "textarea", "required": True},
+    ],
+    "3p_special_project": [
+        {"key": "project_name",      "label": "Project Name",           "type": "text",     "required": True},
+        {"key": "department",        "label": "Department",             "type": "text",     "required": True},
+        {"key": "start_date",        "label": "Start Date",             "type": "date",     "required": False},
+        {"key": "end_date",          "label": "End Date",               "type": "date",     "required": False},
+        {"key": "description",       "label": "Project Description",    "type": "textarea", "required": True},
+    ],
     "access_aws": [
         {"key": "requested_for", "label": "Requested For (Name/Email)", "type": "text", "required": True},
         {"key": "aws_account", "label": "AWS Account / Environment", "type": "select",
@@ -461,6 +524,12 @@ def get_workflow_key(ticket_type: str) -> str:
         "access_superset": "service_request_approval",
         "access_aws": "service_request_approval",
         "access_platform_role": "service_request_approval",
+        # 3P People Help Desk
+        "3p_hiring":          "it_service_request",
+        "3p_issue":           "it_service_request",
+        "3p_disciplinary":    "it_service_request",
+        "3p_reimbursement":   "it_service_request",
+        "3p_special_project": "it_service_request",
     }
     return mapping.get(ticket_type, "default")
 
