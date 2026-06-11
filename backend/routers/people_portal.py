@@ -197,22 +197,15 @@ def create_people_ticket(body: PeopleTicketCreate, db: Session = Depends(get_db)
 # ── CPH My Tickets portal ─────────────────────────────────────────────────────
 @router.get("/my-tickets")
 def get_my_tickets(email: str, db: Session = Depends(get_db)):
-    """Return all CPH tickets raised by this email address."""
+    """Return ALL CPH tickets (visible to any authorised People portal user)."""
     email = email.strip().lower()
     # Auth check
     if email not in ALLOWED_EMAILS and not email.endswith("@bazaartech.com"):
         raise HTTPException(status_code=403, detail="Access denied")
 
-    user = db.query(models.User).filter(models.User.email == email).first()
-    if not user:
-        return []
-
     tickets = (
         db.query(models.Ticket)
-        .filter(
-            models.Ticket.reporter_id == user.id,
-            models.Ticket.portal_source == "people",
-        )
+        .filter(models.Ticket.portal_source == "people")
         .order_by(models.Ticket.created_at.desc())
         .all()
     )
@@ -233,6 +226,7 @@ def get_my_tickets(email: str, db: Session = Depends(get_db)):
             "status": t.status,
             "ticket_type": t.ticket_type,
             "priority": t.priority,
+            "reporter": t.reporter.full_name if t.reporter else "Unknown",
             "created_at": t.created_at.isoformat(),
             "updated_at": t.updated_at.isoformat(),
             "linked_ticket": linked,

@@ -950,7 +950,7 @@ function CphPortal({ auth, onBack, onRaiseNew }) {
               </svg>
             </div>
             <div>
-              <h1 className="text-[22px] font-bold text-white">People Helpdesk — My Requests</h1>
+              <h1 className="text-[22px] font-bold text-white">People Helpdesk — All Requests</h1>
               <p className="text-[13px] text-white/60 mt-0.5">Logged in as <span className="text-white/90 font-medium">{auth.name}</span> · {auth.email}</p>
             </div>
           </div>
@@ -1002,6 +1002,7 @@ function CphPortal({ auth, onBack, onRaiseNew }) {
                 <tr className="bg-[#f7f8f9] border-b border-[#dfe1e6]">
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#6b778c] uppercase tracking-wide">Ticket</th>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#6b778c] uppercase tracking-wide">Request</th>
+                  <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#6b778c] uppercase tracking-wide">Raised By</th>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#6b778c] uppercase tracking-wide">Status</th>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#6b778c] uppercase tracking-wide">IT Task</th>
                   <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#6b778c] uppercase tracking-wide">Raised</th>
@@ -1015,8 +1016,11 @@ function CphPortal({ auth, onBack, onRaiseNew }) {
                       <span className="font-bold text-[#0052cc]">{t.ticket_number}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <p className="font-medium text-[#172b4d] truncate max-w-[240px]">{t.title}</p>
+                      <p className="font-medium text-[#172b4d] truncate max-w-[220px]">{t.title}</p>
                       <p className="text-[11px] text-[#8590a2] mt-0.5">{TYPE_LABELS_LOCAL[t.ticket_type] || t.ticket_type}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="text-[13px] text-[#172b4d]">{t.reporter || "—"}</p>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full ${statusPill(t.status)}`}>
