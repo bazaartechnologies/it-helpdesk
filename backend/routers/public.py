@@ -70,7 +70,8 @@ def create_public_ticket(body: PublicTicketCreate, db: Session = Depends(get_db)
     if body.ticket_type == "onboarding":
         title = f"Colleague Onboarding - {fv_map.get('preferred_email', body.submitter_email)}"
     elif body.ticket_type == "offboarding":
-        title = f"Colleague Offboarding - {fv_map.get('employee_email', body.submitter_email)}"
+        colleague = fv_map.get("full_name") or fv_map.get("colleague_email") or fv_map.get("employee_email", body.submitter_email)
+        title = f"Colleague Offboarding - {colleague}"
     elif body.ticket_type == "system_problem":
         title = f"System Problem - {fv_map.get('affected_system', 'Unknown')}"
     elif body.ticket_type.startswith("access_"):
