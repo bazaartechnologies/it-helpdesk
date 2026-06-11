@@ -55,8 +55,16 @@ TICKET_FORM_FIELDS = {
     ],
     "access_google": [
         {"key": "requested_for", "label": "Requested For (Name/Email)", "type": "text", "required": True},
-        {"key": "request_type", "label": "Request Type", "type": "select",
-         "options": ["Create New Account", "Delete Account", "Password Reset", "Access Modification", "Group Addition"], "required": True},
+        {"key": "google_request_type", "label": "Google Workspace Request", "type": "select",
+         "options": [
+             "Password Reset",
+             "Google Device Policy Exemption",
+             "Team Drive",
+             "Google Group",
+             "Account Creation",
+             "G-Sheet Ownership Transfer",
+             "G-Drive Ownership Transfer",
+         ], "required": True},
         {"key": "mobile_number", "label": "Mobile Number", "type": "text", "required": False},
         {"key": "justification", "label": "Justification (Requirement)", "type": "textarea", "required": True},
     ],
