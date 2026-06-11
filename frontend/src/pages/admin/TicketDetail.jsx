@@ -12,7 +12,8 @@ import useAuthStore from "../../store/authStore";
 
 const TYPE_LABELS = {
   onboarding: "Colleague Onboarding", offboarding: "Colleague Offboarding",
-  "3p_hiring": "Hiring Requisition", "3p_issue": "Issue Resolution",
+  "3p_hiring": "Hiring Requisition", "3p_hiring_new": "Hiring (New Position)", "3p_hiring_replacement": "Hiring (Replacement)",
+  "3p_issue": "Issue Resolution",
   "3p_disciplinary": "Disciplinary Action", "3p_reimbursement": "Reimbursement",
   "3p_special_project": "Special Project",
   incident: "Incident", hardware_request: "Hardware Request",
@@ -41,6 +42,13 @@ const FIELD_LABELS = {
   reimbursement_type: "Reimbursement Type", employee_name: "Employee Name", employee_id: "Employee ID",
   incident_date: "Incident Date", claim_date: "Claim Date", amount: "Amount (PKR)",
   number_of_positions: "Number of Positions", replacement_for: "Replacement For",
+  reason_for_hiring: "Reason for Hiring", division: "Division", sub_department: "SubDepartment",
+  gender: "Gender", no_of_positions: "No. of Position", work_shift: "Work Shift",
+  monthly_day_off: "Monthly Day Off", manager_tagging: "Manager Tagging (flowHCM)",
+  work_experience: "Work Experience", job_description: "Job Description / Skills",
+  bands_scale: "Bands Scale", fuel_requirement: "Fuel Requirement",
+  employee_designation: "Employee Designation", group: "Group", facility: "Facility",
+  education: "Education", leaving_date: "Leaving Date of Leaver",
   project_name: "Project Name", start_date: "Start Date", end_date: "End Date",
   justification: "Justification",
   scope_action: "Action", scope_name: "Scope / Permission", platform: "Platform",

@@ -133,8 +133,13 @@ const PORTAL_REQUESTS = {
   ],
   "3p_people": [
     {
-      type: "3p_hiring", label: "Hiring Requisition",
-      description: "Hiring (Replacement), Hiring (New Position)",
+      type: "3p_hiring_replacement", label: "Hiring (Replacement)",
+      description: "Raise a replacement hiring request for a departing employee.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
+    },
+    {
+      type: "3p_hiring_new", label: "Hiring (New Position)",
+      description: "Raise a requisition for a brand new headcount position.",
       icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
     },
     {
@@ -622,6 +627,7 @@ function RequestForm({ portal, request, onBack, onSuccess, prefillName = "", pre
                     {field.label}{field.required && <span className="text-[#de350b] ml-0.5">*</span>}
                   </label>
                   <FieldInput field={field} value={values[field.key]} onChange={setVal(field.key)} />
+                  {field.hint && <p className="mt-1 text-[12px] text-[#626f86] italic">{field.hint}</p>}
                 </div>
               ))}
             </div>
