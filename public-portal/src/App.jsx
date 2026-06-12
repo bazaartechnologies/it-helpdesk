@@ -145,8 +145,58 @@ const PORTAL_REQUESTS = {
       icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
     },
     {
-      type: "3p_issue", label: "Issue Resolution",
-      description: "FlowHCM Issue, Payroll, FNF Settlement, Offboarding, IT Assets/SIM, Health & Life Insurance and more.",
+      type: "3p_issue_flowhcm", label: "FlowHCM Issue", group: "Issue Resolution",
+      description: "Report an issue with FlowHCM.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+    },
+    {
+      type: "3p_issue_payroll", label: "Payroll", group: "Issue Resolution",
+      description: "Raise a payroll-related issue.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+    },
+    {
+      type: "3p_issue_hold", label: "Hold Payroll/Incentive", group: "Issue Resolution",
+      description: "Request to hold payroll or incentive.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+    },
+    {
+      type: "3p_issue_release", label: "Release Payroll/Incentive", group: "Issue Resolution",
+      description: "Request to release held payroll or incentive.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+    },
+    {
+      type: "3p_issue_fnf", label: "FNF Settlement", group: "Issue Resolution",
+      description: "Request a full & final settlement.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+    },
+    {
+      type: "3p_issue_optimization", label: "Optimization", group: "Issue Resolution",
+      description: "Raise an optimization request.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+    },
+    {
+      type: "3p_issue_offboarding", label: "Offboarding", group: "Issue Resolution",
+      description: "Raise an offboarding request.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+    },
+    {
+      type: "3p_issue_incentive", label: "Incentive/Allowance", group: "Issue Resolution",
+      description: "Raise an incentive or allowance request.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+    },
+    {
+      type: "3p_issue_it_assets", label: "IT Assets/SIM Request", group: "Issue Resolution",
+      description: "Request IT assets or a SIM.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+    },
+    {
+      type: "3p_issue_insurance", label: "Health & Life Insurance", group: "Issue Resolution",
+      description: "Raise a health or life insurance request.",
+      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
+    },
+    {
+      type: "3p_issue_other", label: "Other (In case none of above)", group: "Issue Resolution",
+      description: "Raise any other people-related request.",
       icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
     },
     {
