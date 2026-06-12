@@ -145,6 +145,21 @@ class ApproverRule(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class ServiceRequestConfig(Base):
+    __tablename__ = "service_request_configs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    type_key: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
+    home_portal_id: Mapped[str] = mapped_column(String, nullable=False)
+    label: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, default="")
+    group_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    portal_ids: Mapped[str] = mapped_column(Text, default="[]")   # JSON list of portal IDs
+    fields_json: Mapped[str] = mapped_column(Text, default="[]")  # JSON list of field defs
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 class TicketHistory(Base):
     __tablename__ = "ticket_history"
 

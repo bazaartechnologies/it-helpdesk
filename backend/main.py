@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import engine, SessionLocal
 import models
 import auth as auth_utils
-from routers import auth, tickets, workflows, users, dashboard, public, approver_rules, people_portal
+from routers import auth, tickets, workflows, users, dashboard, public, approver_rules, people_portal, service_requests
 from constants import TICKET_TYPES, WORKFLOW_DEFINITIONS, get_workflow_key
 
 app = FastAPI(title="Bazaar IT Help Desk API")
@@ -28,6 +28,7 @@ app.include_router(dashboard.router)
 app.include_router(public.router)
 app.include_router(approver_rules.router)
 app.include_router(people_portal.router)
+app.include_router(service_requests.router)
 
 
 @app.get("/health")
@@ -201,6 +202,8 @@ def startup_event():
         db = SessionLocal()
         try:
             seed_database(db)
+            from routers.service_requests import sync_from_catalog
+            sync_from_catalog(db)
             print("[startup] Seed complete")
         except Exception as e:
             print(f"[startup] Seed error: {e}")

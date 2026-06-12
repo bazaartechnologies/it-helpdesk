@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
+import json
 from database import get_db
 import models, auth as auth_utils
 from constants import TICKET_TYPES, TICKET_FORM_FIELDS, get_initial_status, get_approvers_for_ticket, NUCLEUS_APPROVERS, COMMANDO_APPROVERS
@@ -168,3 +169,69 @@ def get_public_ticket(ticket_number: str, db: Session = Depends(get_db)):
         "field_values": fv,
         "linked_ticket": linked,
     }
+
+
+@router.get("/catalog")
+def get_catalog(db: Session = Depends(get_db)):
+    """Return portals + request types, merging DB overrides with the Jira catalog."""
+    from catalog import public_portals, PORTALS as RAW_PORTALS
+
+    portals_tree = public_portals()
+    configs = db.query(models.ServiceRequestConfig).all()
+
+    if not configs:
+        # No DB configs yet — serve the deduplicated catalog directly
+        portals_out = []
+        requests_out = {}
+        for p in portals_tree:
+            portals_out.append({
+                "id": p["id"],
+                "name": p["name"],
+                "description": f"Welcome! You can raise a request for the {p['name']} using the options provided.",
+                "featured": p["id"] == "it_service_desk",
+                "is_people": p.get("is_people", False),
+            })
+            seen: set = set()
+            portal_reqs = []
+            for rt in p["request_types"]:
+                if rt["name"] not in seen:
+                    seen.add(rt["name"])
+                    portal_reqs.append({
+                        "type": rt["key"],
+                        "label": rt["name"],
+                        "description": rt.get("description", ""),
+                        "group": rt.get("group"),
+                        "fields": rt.get("fields", []),
+                    })
+            requests_out[p["id"]] = portal_reqs
+        return {"portals": portals_out, "portal_requests": requests_out}
+
+    # Build a lookup: portal_id → list of enabled SR configs for that portal
+    portal_srs: dict = {}
+    for cfg in configs:
+        if not cfg.enabled:
+            continue
+        pids = json.loads(cfg.portal_ids or "[]")
+        entry = {
+            "type": cfg.type_key,
+            "label": cfg.label,
+            "description": cfg.description or "",
+            "group": cfg.group_name,
+            "fields": json.loads(cfg.fields_json or "[]"),
+        }
+        for pid in pids:
+            portal_srs.setdefault(pid, []).append(entry)
+
+    portals_out = []
+    requests_out = {}
+    for p in portals_tree:
+        portals_out.append({
+            "id": p["id"],
+            "name": p["name"],
+            "description": f"Welcome! You can raise a request for the {p['name']} using the options provided.",
+            "featured": p["id"] == "it_service_desk",
+            "is_people": p.get("is_people", False),
+        })
+        requests_out[p["id"]] = portal_srs.get(p["id"], [])
+
+    return {"portals": portals_out, "portal_requests": requests_out}

@@ -2,9 +2,6 @@ import { useState, useEffect } from "react";
 
 const API = "";
 
-
-import { PORTALS, PORTAL_REQUESTS } from "./catalog";
-
 /* Default icon used for portals / request types (catalog has no JSX icons) */
 const DEFAULT_ICON = (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -60,10 +57,10 @@ function TopNav({ onHome }) {
 }
 
 /* ─── Help Center landing ────────────────────────────────────────────────── */
-function HelpCenter({ onSelectPortal }) {
+function HelpCenter({ portals, onSelectPortal }) {
   const [search, setSearch] = useState("");
-  const featured = PORTALS.filter((p) => p.featured);
-  const more = PORTALS.filter((p) => !p.featured);
+  const featured = portals.filter((p) => p.featured);
+  const more = portals.filter((p) => !p.featured);
 
   return (
     <div className="min-h-screen bg-white">
@@ -154,26 +151,24 @@ function PortalCard({ portal, onSelect, featured }) {
 }
 
 /* ─── Portal home (request type list) ────────────────────────────────────── */
-/* ─── Request List with optional groups (Jira-style cards) ──────────────── */
+/* ─── Request List — all items visible, groups as section headers ────────── */
 function RequestList({ requests, onSelectRequest }) {
-  const [activeGroup, setActiveGroup] = useState(null);
-
-  // Build ordered list: groups (deduplicated) + ungrouped items
-  const groupMap = {};
-  const orderedKeys = []; // to preserve insertion order
-  const ungrouped = [];
+  // Build ordered sections: [{group, items}] preserving insertion order
+  const sectionsMap = {};
+  const sectionOrder = [];
 
   requests.forEach((req) => {
-    if (req.group) {
-      if (!groupMap[req.group]) {
-        groupMap[req.group] = [];
-        orderedKeys.push(req.group);
-      }
-      groupMap[req.group].push(req);
-    } else {
-      ungrouped.push(req);
+    const key = req.group || "__ungrouped__";
+    if (!sectionsMap[key]) {
+      sectionsMap[key] = [];
+      sectionOrder.push(key);
     }
+    sectionsMap[key].push(req);
   });
+
+  // Put ungrouped at the end
+  const grouped   = sectionOrder.filter(k => k !== "__ungrouped__");
+  const hasUngrouped = !!sectionsMap["__ungrouped__"];
 
   const RequestRow = ({ req }) => (
     <button
@@ -190,64 +185,40 @@ function RequestList({ requests, onSelectRequest }) {
     </button>
   );
 
-  // If a group is selected → show sub-items with a back link
-  if (activeGroup) {
-    const items = groupMap[activeGroup] || [];
-    return (
-      <div>
-        {/* Back to groups */}
-        <button
-          onClick={() => setActiveGroup(null)}
-          className="flex items-center gap-1.5 text-[#0052cc] text-[13px] font-medium mb-4 hover:underline"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7"/>
-          </svg>
-          Back
-        </button>
-        <h3 className="text-[16px] font-bold text-[#172b4d] mb-3">{activeGroup}</h3>
-        <div className="divide-y divide-[#f1f2f4]">
-          {items.map((req, i) => <RequestRow key={`${req.type}-${i}`} req={req} />)}
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-3">
-      {/* Group cards — Jira style */}
-      {orderedKeys.map((name) => {
-        const items = groupMap[name];
-        const subtitle = items.map(r => r.label).join(", ");
-        return (
-          <button
-            key={name}
-            onClick={() => setActiveGroup(name)}
-            className="w-full flex items-center justify-between border border-[#dfe1e6] rounded-lg px-5 py-4 hover:border-[#4c9aff] hover:bg-[#f4f7ff] transition-all text-left group shadow-sm"
-          >
-            <div>
-              <p className="text-[14px] font-bold text-[#172b4d] group-hover:text-[#0052cc] transition-colors">{name}</p>
-              <p className="text-[12px] text-[#0052cc] mt-0.5">{subtitle}</p>
-            </div>
-            <svg className="w-4 h-4 text-[#8590a2] group-hover:text-[#0052cc] flex-shrink-0 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
-            </svg>
-          </button>
-        );
-      })}
+    <div className="space-y-6">
+      {grouped.map((name) => (
+        <div key={name}>
+          <h3 className="text-[13px] font-bold text-[#172b4d] uppercase tracking-wide mb-1 pb-2 border-b border-[#dfe1e6]">
+            {name}
+          </h3>
+          <div className="divide-y divide-[#f1f2f4]">
+            {sectionsMap[name].map((req, i) => (
+              <RequestRow key={`${req.type}-${i}`} req={req} />
+            ))}
+          </div>
+        </div>
+      ))}
 
-      {/* Ungrouped items — flat list below cards */}
-      {ungrouped.length > 0 && (
-        <div className={`divide-y divide-[#f1f2f4] ${orderedKeys.length > 0 ? "pt-2" : ""}`}>
-          {ungrouped.map((req, i) => <RequestRow key={`${req.type}-${i}`} req={req} />)}
+      {hasUngrouped && (
+        <div className={grouped.length > 0 ? "" : ""}>
+          {grouped.length > 0 && (
+            <h3 className="text-[13px] font-bold text-[#172b4d] uppercase tracking-wide mb-1 pb-2 border-b border-[#dfe1e6]">
+              Other
+            </h3>
+          )}
+          <div className="divide-y divide-[#f1f2f4]">
+            {sectionsMap["__ungrouped__"].map((req, i) => (
+              <RequestRow key={`${req.type}-${i}`} req={req} />
+            ))}
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-function PortalHome({ portal, onSelectRequest, onBack }) {
-  const requests = PORTAL_REQUESTS[portal.id] || [];
+function PortalHome({ portal, requests, onSelectRequest, onBack }) {
 
   return (
     <div className="min-h-screen bg-white">
@@ -1140,6 +1111,14 @@ export default function App() {
   const [ticket,       setTicket]       = useState(null);
   const [peopleAuth,   setPeopleAuth]   = useState(null); // { name, email } after People portal auth
   const [trackNumber,  setTrackNumber]  = useState(null); // ticket number to view in tracker
+  const [catalog,      setCatalog]      = useState({ portals: [], portal_requests: {} });
+
+  useEffect(() => {
+    fetch(`${API}/api/public/catalog`)
+      .then((r) => r.json())
+      .then(setCatalog)
+      .catch(() => {});
+  }, []);
 
   const reset = () => { setScreen("help_center"); setPortal(null); setRequest(null); setTicket(null); setPeopleAuth(null); setTrackNumber(null); };
 
@@ -1183,6 +1162,7 @@ export default function App() {
     return (
       <PortalHome
         portal={portal}
+        requests={catalog.portal_requests[portal.id] || []}
         onSelectRequest={(req) => { setRequest(req); setScreen("form"); }}
         onBack={() => setScreen("help_center")}
       />
@@ -1193,6 +1173,7 @@ export default function App() {
     return (
       <PortalHome
         portal={portal}
+        requests={catalog.portal_requests[portal.id] || []}
         onSelectRequest={(req) => { setRequest(req); setScreen("form"); }}
         onBack={() => setScreen("cph_portal")}
       />
@@ -1221,6 +1202,7 @@ export default function App() {
   // ── 5. Help Center (landing) ───────────────────────────────────────────────
   return (
     <HelpCenter
+      portals={catalog.portals}
       onSelectPortal={(p) => {
         setPortal(p);
         if (p.is_people) {

@@ -29,16 +29,19 @@ def main():
             "featured": p["id"] in FEATURED,
             "is_people": p["is_people"],
         })
-        requests[p["id"]] = [
-            {
-                "type": rt["key"],
-                "label": rt["name"],
-                "description": rt.get("description", ""),
-                "group": rt.get("group"),
-                "fields": rt.get("fields", []),
-            }
-            for rt in p["request_types"]
-        ]
+        seen_labels = set()
+        deduped = []
+        for rt in p["request_types"]:
+            if rt["name"] not in seen_labels:
+                seen_labels.add(rt["name"])
+                deduped.append({
+                    "type": rt["key"],
+                    "label": rt["name"],
+                    "description": rt.get("description", ""),
+                    "group": rt.get("group"),
+                    "fields": rt.get("fields", []),
+                })
+        requests[p["id"]] = deduped
 
     banner = "// AUTO-GENERATED from Jira by gen_catalog_js.py — do not edit by hand.\n"
     body = (
