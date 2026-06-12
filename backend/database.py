@@ -4,8 +4,15 @@ import os
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./helpdesk.db")
 
-connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
+is_sqlite = DATABASE_URL.startswith("sqlite")
+connect_args = {"check_same_thread": False} if is_sqlite else {}
+engine_kwargs = {"connect_args": connect_args}
+if not is_sqlite:
+    engine_kwargs["pool_pre_ping"] = True
+    engine_kwargs["pool_size"] = 5
+    engine_kwargs["max_overflow"] = 10
+
+engine = create_engine(DATABASE_URL, **engine_kwargs)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
