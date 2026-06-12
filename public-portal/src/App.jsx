@@ -134,11 +134,13 @@ const PORTAL_REQUESTS = {
   "3p_people": [
     {
       type: "3p_hiring_replacement", label: "Hiring (Replacement)",
+      group: "Hiring Requisition",
       description: "Raise a replacement hiring request for a departing employee.",
       icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
     },
     {
       type: "3p_hiring_new", label: "Hiring (New Position)",
+      group: "Hiring Requisition",
       description: "Raise a requisition for a brand new headcount position.",
       icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
     },
@@ -326,6 +328,81 @@ function PortalCard({ portal, onSelect, featured }) {
 }
 
 /* ─── Portal home (request type list) ────────────────────────────────────── */
+/* ─── Request List with optional groups ──────────────────────────────────── */
+function RequestList({ requests, onSelectRequest }) {
+  const [openGroups, setOpenGroups] = useState({});
+
+  // Separate grouped vs ungrouped requests
+  const groups = [];
+  const seen = {};
+  const ungrouped = [];
+
+  requests.forEach((req) => {
+    if (req.group) {
+      if (!seen[req.group]) {
+        seen[req.group] = true;
+        groups.push({ name: req.group, items: [] });
+      }
+      groups[groups.findIndex(g => g.name === req.group)].items.push(req);
+    } else {
+      ungrouped.push(req);
+    }
+  });
+
+  const toggleGroup = (name) => setOpenGroups(p => ({ ...p, [name]: !p[name] }));
+
+  const RequestRow = ({ req }) => (
+    <button
+      onClick={() => onSelectRequest(req)}
+      className="w-full flex items-center gap-4 py-4 hover:bg-[#f7f8f9] transition-colors text-left group rounded-lg px-3 -mx-3"
+    >
+      <div className="w-9 h-9 rounded-full bg-[#f1f2f4] text-[#44546f] flex items-center justify-center flex-shrink-0 group-hover:bg-[#e9f2ff] group-hover:text-[#0052cc] transition-colors">
+        {req.icon}
+      </div>
+      <div className="flex-1">
+        <p className="text-[14px] font-semibold text-[#172b4d] group-hover:text-[#0052cc] transition-colors">{req.label}</p>
+        {req.description && <p className="text-[12px] text-[#6b778c] mt-0.5">{req.description}</p>}
+      </div>
+    </button>
+  );
+
+  return (
+    <div className="divide-y divide-[#f1f2f4]">
+      {/* Grouped sections */}
+      {groups.map((g) => {
+        const isOpen = !!openGroups[g.name];
+        return (
+          <div key={g.name}>
+            {/* Group header row */}
+            <button
+              onClick={() => toggleGroup(g.name)}
+              className="w-full flex items-center justify-between py-4 px-3 -mx-3 hover:bg-[#f7f8f9] rounded-lg transition-colors text-left"
+            >
+              <span className="text-[14px] font-bold text-[#172b4d]">{g.name}</span>
+              <svg
+                className={`w-4 h-4 text-[#626f86] transition-transform flex-shrink-0 ${isOpen ? "rotate-90" : ""}`}
+                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+            {/* Sub-items */}
+            {isOpen && (
+              <div className="ml-4 border-l-2 border-[#e9f2ff] pl-4 pb-2">
+                {g.items.map((req, i) => <RequestRow key={`${req.type}-${i}`} req={req} />)}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      {/* Ungrouped items */}
+      {ungrouped.map((req, i) => (
+        <RequestRow key={`${req.type}-${i}`} req={req} />
+      ))}
+    </div>
+  );
+}
+
 function PortalHome({ portal, onSelectRequest, onBack }) {
   const requests = PORTAL_REQUESTS[portal.id] || [];
 
@@ -356,23 +433,7 @@ function PortalHome({ portal, onSelectRequest, onBack }) {
         {/* Request types */}
         <h2 className="text-[14px] font-bold text-[#0052cc] mb-4">What can we help you with?</h2>
 
-        <div className="divide-y divide-[#f1f2f4]">
-          {requests.map((req, i) => (
-            <button
-              key={`${req.type}-${i}`}
-              onClick={() => onSelectRequest(req)}
-              className="w-full flex items-center gap-4 py-4 hover:bg-[#f7f8f9] transition-colors text-left group rounded-lg px-3 -mx-3"
-            >
-              <div className="w-9 h-9 rounded-full bg-[#f1f2f4] text-[#44546f] flex items-center justify-center flex-shrink-0 group-hover:bg-[#e9f2ff] group-hover:text-[#0052cc] transition-colors">
-                {req.icon}
-              </div>
-              <div className="flex-1">
-                <p className="text-[14px] font-semibold text-[#172b4d] group-hover:text-[#0052cc] transition-colors">{req.label}</p>
-                {req.description && <p className="text-[12px] text-[#6b778c] mt-0.5">{req.description}</p>}
-              </div>
-            </button>
-          ))}
-        </div>
+        <RequestList requests={requests} onSelectRequest={onSelectRequest} />
       </div>
     </div>
   );
