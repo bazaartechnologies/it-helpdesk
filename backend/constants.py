@@ -854,3 +854,19 @@ def get_approvers_for_ticket(ticket_type: str, field_values: dict) -> list:
         role = field_values.get("commando_role", "")
         return COMMANDO_APPROVERS.get(role, COMMANDO_APPROVERS["_default"])
     return []
+
+
+# ──────────────────────────────────────────────────────────────
+# Merge the full Jira catalog (all portals / request types / fields)
+# Composite keys (portal__slug) never collide with the hand-coded keys
+# above, so existing custom flows (CPH dual tickets, approvers) are kept.
+# ──────────────────────────────────────────────────────────────
+try:
+    from catalog import CATALOG_TYPES, CATALOG_FIELDS
+    for _k, _name in CATALOG_TYPES.items():
+        TICKET_TYPES.setdefault(_k, _name)
+    for _k, _fields in CATALOG_FIELDS.items():
+        TICKET_FORM_FIELDS.setdefault(_k, _fields)
+except Exception as _e:  # catalog optional — app still works without it
+    import sys as _sys
+    print(f"[constants] catalog not loaded: {_e}", file=_sys.stderr)

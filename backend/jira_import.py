@@ -79,30 +79,64 @@ def _paged(path, key="values", params=None):
     return out
 
 
+import re
+
 # ── Jira field type → our type ────────────────────────────────────────────
 def map_field_type(jira_field):
-    jt = (jira_field.get("jiraSchema", {}) or {}).get("type", "")
-    custom = (jira_field.get("jiraSchema", {}) or {}).get("custom", "") or ""
+    schema = jira_field.get("jiraSchema", {}) or {}
+    jt = schema.get("type", "")
+    item = schema.get("items", "")
+    custom = schema.get("custom", "") or ""
     name = jira_field.get("name", "").lower()
+    fid = (jira_field.get("fieldId", "") or "").lower()
+    has_vals = bool(jira_field.get("validValues"))
 
-    if "textarea" in custom or jt == "string" and jira_field.get("required") and "description" in name:
-        return "textarea"
-    if jt == "date" or jt == "datetime" or "date" in custom:
+    # Attachments → file upload
+    if jt == "attachment" or "attachment" in name or fid == "attachment":
+        return "file"
+    # User / people pickers → free text (we don't have a Jira user directory)
+    if jt == "user" or item == "user" or "manager" in name or "assigned" in name \
+       or name.startswith("who is") or "request raised for" in name or "raise this request" in name:
+        return "user" if False else "text"
+    # Dates
+    if jt in ("date", "datetime") or "date" in custom:
         return "date"
-    if jt == "array":
+    # Radios
+    if "radiobuttons" in custom:
+        return "radio"
+    # Multi-select / checkboxes (array with options)
+    if jt == "array" and has_vals:
         return "multiselect"
-    if "select" in custom or "radiobuttons" in custom or jira_field.get("validValues"):
-        return "radiobuttons" in custom and "radio" or "select"
+    if jt == "array":
+        return "text"
+    # Single select
+    if "select" in custom or has_vals:
+        return "select"
+    # Email
     if "email" in name:
         return "email"
-    if custom.endswith("textarea"):
+    # Textareas
+    if custom.endswith("textarea") or "textarea" in custom \
+       or (jt == "string" and ("description" in name or "justification" in name)):
         return "textarea"
     return "text"
 
 
+def clean_hint(text):
+    """Strip Jira wiki markup from help text."""
+    if not text:
+        return ""
+    t = text
+    t = re.sub(r"\{color[^}]*\}", "", t)      # {color:red} / {color}
+    t = t.replace("\\\\", " ").replace("\\", " ")
+    t = t.replace("\xa0", " ")
+    t = re.sub(r"[*_]+", "", t)                # bold / italic markers
+    t = re.sub(r"\s+", " ", t).strip()
+    return t
+
+
 def slugify(label):
-    import re
-    s = re.sub(r"[^a-z0-9]+", "_", label.lower()).strip("_")
+    s = re.sub(r"[^a-z0-9]+", "_", (label or "").lower()).strip("_")
     return s or "field"
 
 
@@ -111,45 +145,80 @@ def extract():
     desks = _paged("/rest/servicedeskapi/servicedesk")
     print(f"# Found {len(desks)} service desks\n", file=sys.stderr)
 
-    ticket_types = {}
-    form_fields = {}
+    portals = []          # full structured catalog
+    ticket_types = {}     # flat: composite_key -> name
+    form_fields = {}      # flat: composite_key -> [fields]
 
     for desk in desks:
         sd_id = desk["id"]
-        project = desk.get("projectName", desk.get("projectKey", sd_id))
-        print(f"# ── Service Desk: {project} (id={sd_id}) ──", file=sys.stderr)
+        project = desk.get("projectName", desk.get("projectKey", str(sd_id)))
+        portal_key = slugify(project)
+        print(f"# ── Service Desk: {project} (id={sd_id}, key={portal_key}) ──", file=sys.stderr)
+
+        # Groups (for sub-sections like "Hiring Requisition")
+        groups = _paged(f"/rest/servicedeskapi/servicedesk/{sd_id}/requesttypegroup")
+        group_names = {str(g["id"]): g["name"] for g in groups}
 
         rtypes = _paged(f"/rest/servicedeskapi/servicedesk/{sd_id}/requesttype")
+        portal_rts = []
+        seen_keys = set()
         for rt in rtypes:
             rt_id   = rt["id"]
             rt_name = rt["name"]
-            key     = slugify(rt_name)
-            ticket_types[key] = rt_name
-            print(f"#   • {rt_name}  (key={key})", file=sys.stderr)
+            base_slug = slugify(rt_name)
+            ckey = f"{portal_key}__{base_slug}"
+            # de-dup composite keys within a portal
+            n = 2
+            while ckey in seen_keys:
+                ckey = f"{portal_key}__{base_slug}_{n}"; n += 1
+            seen_keys.add(ckey)
+
+            gids = [str(g) for g in rt.get("groupIds", [])]
+            gnames = [group_names.get(g) for g in gids if group_names.get(g)]
 
             fdata = _get(f"/rest/servicedeskapi/servicedesk/{sd_id}/requesttype/{rt_id}/field")
-            fields = []
+            fields, fseen = [], set()
             for f in (fdata or {}).get("requestTypeFields", []):
-                ftype = map_field_type(f)
+                fkey = slugify(f.get("fieldId") or f.get("name", ""))
+                if fkey in fseen:        # skip duplicate field keys
+                    continue
+                fseen.add(fkey)
                 entry = {
-                    "key": slugify(f.get("name", f.get("fieldId", ""))),
+                    "key": fkey,
                     "label": f.get("name", ""),
-                    "type": ftype,
+                    "type": map_field_type(f),
                     "required": f.get("required", False),
                 }
                 vals = [v.get("label") for v in f.get("validValues", []) if v.get("label")]
                 if vals:
                     entry["options"] = vals
-                desc = f.get("description", "")
-                if desc:
-                    entry["hint"] = desc
+                hint = clean_hint(f.get("description", ""))
+                if hint:
+                    entry["hint"] = hint
                 fields.append(entry)
-            form_fields[key] = fields
 
-    return ticket_types, form_fields
+            ticket_types[ckey] = rt_name
+            form_fields[ckey]  = fields
+            portal_rts.append({
+                "key": ckey,
+                "name": rt_name,
+                "description": clean_hint(rt.get("description", "")),
+                "groups": gnames,
+                "fields": fields,
+            })
+            print(f"#   • {rt_name}  (key={ckey}, fields={len(fields)})", file=sys.stderr)
+
+        portals.append({
+            "id": portal_key,
+            "name": project,
+            "jira_id": str(sd_id),
+            "request_types": portal_rts,
+        })
+
+    return portals, ticket_types, form_fields
 
 
-def render(ticket_types, form_fields):
+def render_py(ticket_types, form_fields):
     out = ["# AUTO-GENERATED FROM JIRA — review then merge into constants.py\n"]
     out.append("TICKET_TYPES = {")
     for k, v in ticket_types.items():
@@ -169,11 +238,13 @@ if __name__ == "__main__":
     if not EMAIL or not TOKEN:
         print("ERROR: set JIRA_EMAIL and JIRA_TOKEN environment variables.", file=sys.stderr)
         sys.exit(1)
-    tt, ff = extract()
-    text = render(tt, ff)
+    portals, tt, ff = extract()
     if "--write" in sys.argv:
         with open("jira_generated.py", "w") as fh:
-            fh.write(text)
-        print("\n# Wrote jira_generated.py", file=sys.stderr)
+            fh.write(render_py(tt, ff))
+        with open("jira_catalog.json", "w") as fh:
+            json.dump({"portals": portals}, fh, indent=2, ensure_ascii=False)
+        print(f"\n# Wrote jira_generated.py ({len(tt)} types)", file=sys.stderr)
+        print(f"# Wrote jira_catalog.json ({len(portals)} portals)", file=sys.stderr)
     else:
-        print(text)
+        print(render_py(tt, ff))

@@ -43,6 +43,13 @@ def _get_or_create_guest(db: Session, name: str, email: str) -> models.User:
     return user
 
 
+@router.get("/portals")
+def get_portals():
+    """Full Jira-mirrored portal tree (portals → groups → request types → fields)."""
+    from catalog import public_portals
+    return public_portals()
+
+
 @router.get("/ticket-types")
 def get_ticket_types():
     return TICKET_TYPES

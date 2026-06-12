@@ -2,237 +2,13 @@ import { useState, useEffect } from "react";
 
 const API = "";
 
-/* ─── Portal definitions (4 service desks) ──────────────────────────────── */
-const PORTALS = [
-  {
-    id: "it",
-    name: "IT Service Desk",
-    description: "Welcome! Please select your team and issue type to initiate a support ticket.",
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-      </svg>
-    ),
-    featured: true,
-  },
-  {
-    id: "people",
-    name: "People Helpdesk",
-    description: "Welcome! You can raise a request for the People Helpdesk using the options provided.",
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
-    featured: false,
-  },
-  {
-    id: "3p_people",
-    name: "3P People Help Desk",
-    description: "Welcome! You can raise a request for the 3P People Help Desk using the options provided.",
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-      </svg>
-    ),
-    featured: false,
-  },
-  {
-    id: "contractual",
-    name: "Contractual People HelpDesk",
-    description: "Welcome! You can raise a request for the Contractual People HelpDesk using the options provided.",
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-    featured: false,
-  },
-];
 
-/* ─── Request types per portal ───────────────────────────────────────────── */
-const PORTAL_REQUESTS = {
-  it: [
-    {
-      type: "access_google", label: "Google Workspace Request",
-      description: "Password reset, account creation, Team Drive, Google Group, and more.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>,
-    },
-    {
-      type: "access_nucleus", label: "Nucleus Access Request",
-      description: "Request access to the Nucleus system.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>,
-    },
-    {
-      type: "access_commando", label: "Commando Access Request",
-      description: "Request access to the Commando platform.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>,
-    },
-    {
-      type: "access_superset", label: "SuperSet Access Request",
-      description: "Request access to Apache SuperSet analytics.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>,
-    },
-    {
-      type: "access_lending", label: "Lending Portal Access",
-      description: "Request access to lending portal modules.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>,
-    },
-    {
-      type: "access_aws", label: "AWS Access",
-      description: "Request access to AWS accounts, services, or environments.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/></svg>,
-    },
-    {
-      type: "access_platform", label: "Platform Scopes Add/Remove",
-      description: "Add or remove scopes on Commando, Nucleus, Lending Portal, Partner Portal, and other platforms.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2 1 3 3 3h10c2 0 3-1 3-3V7c0-2-1-3-3-3H7C5 4 4 5 4 7zm0 5h16M9 4v16"/></svg>,
-    },
-    {
-      type: "incident", label: "Report an Incident",
-      description: "Report a system outage or critical issue affecting your work.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>,
-    },
-    {
-      type: "hardware_request", label: "Hardware Request",
-      description: "Request a laptop, monitor, or other hardware equipment.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>,
-    },
-    {
-      type: "it_service_request", label: "IT Service Request",
-      description: "Request IT support, configuration, or a software installation.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>,
-    },
-    {
-      type: "system_problem", label: "Report a System Problem",
-      description: "Let us know if something isn't working and we'll get it back up quickly.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>,
-    },
-  ],
-  people: [
-    {
-      type: "onboarding", label: "Colleague Onboarding",
-      description: "Submit an onboarding request for a new joiner.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
-    },
-    {
-      type: "offboarding", label: "Colleague Offboarding",
-      description: "Submit an offboarding request for a departing employee.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"/></svg>,
-    },
-    {
-      type: "bz_internal_transfer", label: "BZ Internal Transfer",
-      description: "Request an internal transfer, redesignation, or relocation for a Bazaar colleague.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>,
-    },
-    {
-      type: "it_service_request", label: "Requisition Form",
-      description: "For people partner only.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>,
-    },
-  ],
-  "3p_people": [
-    {
-      type: "3p_hiring_replacement", label: "Hiring (Replacement)",
-      group: "Hiring Requisition",
-      description: "Raise a replacement hiring request for a departing employee.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
-    },
-    {
-      type: "3p_hiring_new", label: "Hiring (New Position)",
-      group: "Hiring Requisition",
-      description: "Raise a requisition for a brand new headcount position.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
-    },
-    {
-      type: "3p_issue_flowhcm", label: "FlowHCM Issue", group: "Issue Resolution",
-      description: "Report an issue with FlowHCM.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-    },
-    {
-      type: "3p_issue_payroll", label: "Payroll", group: "Issue Resolution",
-      description: "Raise a payroll-related issue.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-    },
-    {
-      type: "3p_issue_hold", label: "Hold Payroll/Incentive", group: "Issue Resolution",
-      description: "Request to hold payroll or incentive.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-    },
-    {
-      type: "3p_issue_release", label: "Release Payroll/Incentive", group: "Issue Resolution",
-      description: "Request to release held payroll or incentive.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-    },
-    {
-      type: "3p_issue_fnf", label: "FNF Settlement", group: "Issue Resolution",
-      description: "Request a full & final settlement.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-    },
-    {
-      type: "3p_issue_optimization", label: "Optimization", group: "Issue Resolution",
-      description: "Raise an optimization request.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-    },
-    {
-      type: "3p_issue_offboarding", label: "Offboarding", group: "Issue Resolution",
-      description: "Raise an offboarding request.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-    },
-    {
-      type: "3p_issue_incentive", label: "Incentive/Allowance", group: "Issue Resolution",
-      description: "Raise an incentive or allowance request.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-    },
-    {
-      type: "3p_issue_it_assets", label: "IT Assets/SIM Request", group: "Issue Resolution",
-      description: "Request IT assets or a SIM.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-    },
-    {
-      type: "3p_issue_insurance", label: "Health & Life Insurance", group: "Issue Resolution",
-      description: "Raise a health or life insurance request.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-    },
-    {
-      type: "3p_issue_other", label: "Other (In case none of above)", group: "Issue Resolution",
-      description: "Raise any other people-related request.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>,
-    },
-    {
-      type: "3p_disciplinary", label: "Disciplinary Action",
-      description: "Behavioural Issue, Cash Snatching, Fraudulent Activity, PIP, Violation of SOPs and more.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>,
-    },
-    {
-      type: "3p_reimbursement", label: "Reimbursement",
-      description: "TADA Claim, OPD Claim",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>,
-    },
-    {
-      type: "3p_special_project", label: "Special Project (Only for People Team)",
-      description: "Submit a special project request for the People team.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>,
-    },
-  ],
-  contractual: [
-    {
-      type: "onboarding", label: "Contractual Onboarding",
-      description: "Submit an onboarding request for a contractual employee.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>,
-    },
-    {
-      type: "offboarding", label: "Contractual Offboarding",
-      description: "Submit an offboarding request for a departing contractual employee.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6"/></svg>,
-    },
-    {
-      type: "it_service_request", label: "Contractual Requisition",
-      description: "Raise a contractual requisition form.",
-      icon: <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>,
-    },
-  ],
-};
+import { PORTALS, PORTAL_REQUESTS } from "./catalog";
+
+/* Default icon used for portals / request types (catalog has no JSX icons) */
+const DEFAULT_ICON = (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+);
 
 /* ─── Decorative SVG pattern (Jira-style) ────────────────────────────────── */
 function HeroBanner({ children }) {
@@ -350,7 +126,7 @@ function PortalCard({ portal, onSelect, featured }) {
         className="flex items-start gap-5 border border-[#dfe1e6] rounded-lg p-5 hover:border-[#4c9aff] hover:bg-[#f4f7ff] transition-all text-left group shadow-sm"
       >
         <div className="w-12 h-12 rounded-lg bg-[#e9f2ff] text-[#0052cc] flex items-center justify-center flex-shrink-0 group-hover:bg-[#0052cc] group-hover:text-white transition-colors">
-          {portal.icon}
+          {portal.icon || DEFAULT_ICON}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-[15px] font-bold text-[#172b4d] group-hover:text-[#0052cc] transition-colors">{portal.name}</p>
@@ -369,7 +145,7 @@ function PortalCard({ portal, onSelect, featured }) {
       className="flex flex-col border border-[#dfe1e6] rounded-lg p-5 hover:border-[#4c9aff] hover:shadow-md transition-all text-left group shadow-sm"
     >
       <div className="w-10 h-10 rounded-lg bg-[#f1f2f4] text-[#44546f] flex items-center justify-center mb-3 group-hover:bg-[#e9f2ff] group-hover:text-[#0052cc] transition-colors">
-        {portal.icon}
+        {portal.icon || DEFAULT_ICON}
       </div>
       <p className="text-[14px] font-bold text-[#172b4d] group-hover:text-[#0052cc] transition-colors">{portal.name}</p>
       <p className="text-[12px] text-[#6b778c] mt-1 leading-relaxed">{portal.description}</p>
@@ -405,7 +181,7 @@ function RequestList({ requests, onSelectRequest }) {
       className="w-full flex items-center gap-4 py-4 hover:bg-[#f7f8f9] transition-colors text-left group rounded-lg px-3 -mx-3"
     >
       <div className="w-9 h-9 rounded-full bg-[#f1f2f4] text-[#44546f] flex items-center justify-center flex-shrink-0 group-hover:bg-[#e9f2ff] group-hover:text-[#0052cc] transition-colors">
-        {req.icon}
+        {req.icon || DEFAULT_ICON}
       </div>
       <div className="flex-1">
         <p className="text-[14px] font-semibold text-[#172b4d] group-hover:text-[#0052cc] transition-colors">{req.label}</p>
@@ -513,6 +289,15 @@ function FieldInput({ field, value, onChange }) {
   if (field.type === "text" || field.type === "email" || field.type === "date")
     return <input type={field.type} value={value || ""} onChange={(e) => onChange(e.target.value)} required={field.required} className={base} />;
 
+  if (field.type === "file")
+    return (
+      <input
+        type="file"
+        onChange={(e) => onChange(e.target.files?.[0]?.name || "")}
+        className="w-full text-[13px] text-[#44546f] file:mr-3 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-[13px] file:font-semibold file:bg-[#e9f2ff] file:text-[#0052cc] hover:file:bg-[#dbeafe] cursor-pointer"
+      />
+    );
+
   if (field.type === "textarea")
     return <textarea value={value || ""} onChange={(e) => onChange(e.target.value)} required={field.required} rows={3} className={`${base} resize-none`} />;
 
@@ -607,7 +392,7 @@ function PeopleLogin({ portal, onAuth, onBack }) {
       <div className="max-w-lg mx-auto px-6 py-10">
         <div className="bg-white border border-[#dfe1e6] rounded-xl shadow-sm overflow-hidden">
           <div className="bg-[#0052cc] px-6 py-5 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white flex-shrink-0">{portal.icon}</div>
+            <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white flex-shrink-0">{portal.icon || DEFAULT_ICON}</div>
             <div>
               <h1 className="text-[17px] font-bold text-white">{portal.name}</h1>
               <p className="text-[12px] text-white/70">Restricted access — authorised users only</p>
@@ -661,9 +446,11 @@ function RequestForm({ portal, request, onBack, onSuccess, prefillName = "", pre
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]   = useState("");
 
-  const isPeople = portal?.id === "people" || portal?.id === "3p_people" || portal?.id === "contractual";
+  const isPeople = !!portal?.is_people;
 
   useEffect(() => {
+    // Catalog already ships the fields with each request — use them directly.
+    if (request.fields && request.fields.length) { setFields(request.fields); return; }
     fetch(`${API}/api/public/form-fields/${request.type}`)
       .then((r) => r.json()).then(setFields).catch(() => setFields([]));
   }, [request.type]);
@@ -1358,7 +1145,7 @@ export default function App() {
 
   const handleBack = (to) => {
     if (to === "home")         { reset(); }
-    if (to === "portal")       { setScreen(portal?.id === "people" ? "cph_portal" : "portal"); setRequest(null); }
+    if (to === "portal")       { setScreen(portal?.is_people ? "cph_portal" : "portal"); setRequest(null); }
     if (to === "people_login") { setScreen("people_login"); setRequest(null); }
   };
 
@@ -1436,8 +1223,8 @@ export default function App() {
     <HelpCenter
       onSelectPortal={(p) => {
         setPortal(p);
-        if (p.id === "people") {
-          // People portal requires email verification first
+        if (p.is_people) {
+          // People portals require email verification first (CPH dual-ticket flow)
           setPeopleAuth(null);
           setScreen("people_login");
         } else {
